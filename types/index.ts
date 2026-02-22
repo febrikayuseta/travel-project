@@ -22,6 +22,7 @@ export type User = {
 
 export type RegisterPayload = {
   email: string
+  name: string
   password: string
   passwordRepeat: string
   role?: Role

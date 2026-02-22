@@ -33,7 +33,11 @@ export default async function ActivityDetailPage({ params }: { params: { id: str
         <p>{activity.description}</p>
         <p className="text-sm">Price: {activity.price}</p>
         <SafeHtml html={activity.facilities} className="rounded-md bg-slate-100 p-3 text-sm" />
-        <SafeHtml html={activity.location_maps} className="rounded-md bg-slate-100 p-3 text-sm" />
+        <SafeHtml
+          html={activity.location_maps}
+          allowIframe
+          className="rounded-md bg-slate-100 p-3 text-sm"
+        />
         <AddToCartButton activityId={activity.id} />
       </CardContent>
     </Card>

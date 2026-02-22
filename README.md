@@ -39,6 +39,7 @@ npm run dev
 - `app/api/auth/logout/route.ts`:
   - Calls backend logout (best effort).
   - Clears `token` cookie.
+  - Redirects to `/login`.
 - `app/api/proxy/[...path]/route.ts`:
   - Server-side proxy for backend `/api/v1/*`.
   - Injects `apiKey` and cookie token automatically.
@@ -63,24 +64,30 @@ npm run dev
 - `/promos/[id]` (`app/promos/[id]/page.tsx`)
   - Promo details.
   - Renders `terms_condition` safely with DOMPurify.
+- `/banners/[id]` (`app/banners/[id]/page.tsx`)
+  - Banner detail by ID.
 - `/categories/[id]` (`app/categories/[id]/page.tsx`)
   - Category detail and activities by category.
 - `/activities/[id]` (`app/activities/[id]/page.tsx`)
   - Activity detail.
-  - Safely renders `facilities` and `location_maps`.
+  - Safely renders `facilities` and `location_maps` (iframe map allowed for `location_maps`).
   - Add to cart action.
 
 ### User Pages (auth required)
 
 - `/account` (`app/account/page.tsx`)
   - Shows authenticated user profile.
+  - Update profile form (`name`, `email`, `profilePictureUrl`, `phoneNumber`).
 - `/cart` (`app/cart/page.tsx`)
   - Shows user cart list.
   - Update quantity and delete cart items.
+  - Choose payment method and proceed to payment (`create-transaction`).
 - `/transactions` (`app/transactions/page.tsx`)
   - Shows current user transactions.
 - `/transactions/[id]` (`app/transactions/[id]/page.tsx`)
   - Transaction detail by ID.
+  - Cancel transaction.
+  - Upload proof image and update proof payment URL.
 
 ### Admin Pages (admin role required)
 
@@ -107,6 +114,21 @@ npm run dev
 - `POST /api/auth/logout` (`app/api/auth/logout/route.ts`)
 - `GET|POST|DELETE /api/proxy/[...path]` (`app/api/proxy/[...path]/route.ts`)
 
+## Endpoint Coverage
+
+The current UI flow and proxy/API integration cover these backend endpoints:
+
+- Auth: `register`, `login`, `logout`
+- Users: `user`, `all-user`, `update-profile`, `update-user-role/:id`
+- Banners: `banners`, `banner/:id`, `create-banner`, `update-banner/:id`, `delete-banner/:id`
+- Promos: `promos`, `promo/:id`, `create-promo`, `update-promo/:id`, `delete-promo/:id`
+- Categories: `categories`, `category/:id`, `create-category`, `update-category/:id`, `delete-category/:id`
+- Activities: `activities`, `activity/:id`, `activities-by-category/:id`, `create-activity`, `update-activity/:id`, `delete-activity/:id`
+- Payment methods: `payment-methods`, `generate-payment-methods`
+- Cart: `carts`, `add-cart`, `update-cart/:id`, `delete-cart/:id`
+- Transactions: `my-transactions`, `all-transactions`, `transaction/:id`, `create-transaction`, `cancel-transaction/:id`, `update-transaction-status/:id`, `update-transaction-proof-payment/:id`
+- Upload: `upload-image`
+
 ## Types
 
 Domain types are in `types/index.ts`:
@@ -123,6 +145,7 @@ Domain types are in `types/index.ts`:
 ## UI Components
 
 - `components/ui/*`: button, input, textarea, card primitives.
+- `components/ui/notification.tsx`: inline success/error/info notification component.
 - `components/confirm-modal.tsx`: reusable delete confirmation modal.
 - `components/admin-crud-page.tsx`: reusable admin CRUD page pattern.
 - `components/safe-html.tsx`: sanitized HTML renderer.

@@ -3,7 +3,7 @@ import client from "@/lib/api/client"
 import { endpoints } from "@/lib/api/endpoints"
 import { getTokenFromCookies } from "@/lib/auth/helpers"
 
-export async function POST() {
+export async function POST(req: Request) {
   const token = await getTokenFromCookies()
 
   if (token) {
@@ -18,7 +18,7 @@ export async function POST() {
     }
   }
 
-  const response = NextResponse.json({ ok: true })
+  const response = NextResponse.redirect(new URL("/login", req.url))
   response.cookies.set("token", "", {
     httpOnly: true,
     path: "/",

@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const [form, setForm] = useState({
     email: "",
+    name: "",
     password: "",
     passwordRepeat: "",
     role: "user",
@@ -56,6 +57,12 @@ export default function RegisterPage() {
               onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
             />
             <Input
+              placeholder="Name"
+              required
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            />
+            <Input
               placeholder="Password"
               type="password"
               required
@@ -89,4 +96,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-
