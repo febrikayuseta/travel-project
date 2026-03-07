@@ -44,10 +44,20 @@ const schema = object({
   email: pipe(string(), minLength(1, 'This field is required'), email('Please enter a valid email address')),
   password: pipe(
     string(),
-    nonEmpty('This field is required'),
-    minLength(5, 'Password must be at least 5 characters long')
+    nonEmpty('This field is required')
   )
 })
+
+const inputStyles = {
+  '& .MuiInputBase-input': { color: 'white' },
+  '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.2)' },
+    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.4)' },
+    '&.Mui-focused fieldset': { borderColor: 'var(--mui-palette-primary-main)' }
+  },
+  '& .MuiInputLabel-root.Mui-focused': { color: 'var(--mui-palette-primary-main)' }
+}
 
 const Login = ({ mode }: { mode: Mode }) => {
   // States
@@ -96,7 +106,7 @@ const Login = ({ mode }: { mode: Mode }) => {
         throw new Error('Invalid credentials')
       }
 
-      const redirectURL = searchParams.get('redirectTo') ?? '/'
+      const redirectURL = searchParams.get('redirectTo') ?? themeConfig.homePageUrl
       
       toast.success('Login successful!')
       router.push(redirectURL)
@@ -108,11 +118,11 @@ const Login = ({ mode }: { mode: Mode }) => {
   }
 
   return (
-    <div className='flex h-[100dvh] w-full overflow-hidden bg-[#121212] relative'>
-      {/* Left side: Illustration (Hidden on mobile) */}
+    <div className='flex h-screen w-full overflow-hidden bg-[#0a0a0c] relative'>
+      {/* Left side: Immersive Travel Scene */}
       <div
         className={classnames(
-          'relative hidden md:flex flex-1 h-full items-center justify-center p-12 overflow-hidden',
+          'relative hidden md:flex flex-1 items-center justify-center p-16 overflow-hidden',
           {
             'border-e border-white/5': settings.skin === 'bordered'
           }
@@ -121,39 +131,48 @@ const Login = ({ mode }: { mode: Mode }) => {
         <div
           className='absolute inset-0 z-0'
           style={{
-            backgroundImage: `url(${authBackground})`,
+            backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.4)), url(${authBackground})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            opacity: 0.7
+            backgroundRepeat: 'no-repeat'
           }}
         />
-        <img
-          src={characterIllustration}
-          alt='character-illustration'
-          className='z-10 max-w-[550px] w-full rounded-2xl shadow-2xl object-cover aspect-[4/3] border-[6px] border-white/10'
-        />
+        <div className='z-10 relative text-center flex flex-col items-center gap-6 px-10'>
+          <div className='relative'>
+            <div className='absolute -inset-6 bg-primary/30 blur-[60px] rounded-full' />
+            <i className='ri-map-2-line text-white text-[100px] relative z-10 opacity-90' />
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Typography variant='h1' className='text-white font-black tracking-tighter leading-none' style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+              BEYOND the <span className='text-primary'>HORIZON</span>
+            </Typography>
+            <div className='h-1.5 w-32 bg-primary mx-auto my-2 rounded-full shadow-[0_0_20px_rgba(var(--mui-palette-primary-mainChannel),0.5)]' />
+          </div>
+          <Typography variant='h4' className='text-white/70 font-light italic max-w-[500px] leading-relaxed'>
+            &quot;Life is either a daring adventure or nothing at all. Log in to continue your global exploration.&quot;
+          </Typography>
+        </div>
       </div>
 
       {/* Right side: Login Form */}
-      <div className='flex flex-col justify-center items-center w-full md:w-[480px] h-full bg-[#2f2b3d] p-8 md:p-12 relative z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)]'>
-        <div className='flex flex-col gap-8 w-full max-w-[400px] z-30'>
-          <div className='flex flex-col gap-6'>
+      <div className='flex flex-col justify-center items-center w-full md:w-[500px] h-full bg-[#1c1b29] p-8 md:p-12 relative z-20 shadow-2xl overflow-y-auto'>
+        <div className='flex flex-col gap-10 w-full max-w-[400px] z-30 py-8'>
+          <div className='flex flex-col gap-8'>
             <Link
               href='/'
-              className='flex items-center gap-3 self-start py-2.5 px-6 rounded-full bg-primary/15 transition-all hover:bg-primary/25'
+              className='flex items-center gap-3 self-start py-3 px-7 rounded-full bg-primary/20 border border-primary/20 transition-all hover:bg-primary/30 shadow-lg shadow-primary/10'
             >
               <i className='ri-flight-takeoff-line text-primary text-3xl' />
-              <Typography variant='h5' className='font-bold uppercase tracking-[2px] text-primary'>
+              <Typography variant='h5' className='font-bold uppercase tracking-[3px] text-primary'>
                 TravelYuk
               </Typography>
             </Link>
             <div>
-              <Typography variant='h4' fontWeight='bold' style={{ color: 'white', marginBottom: '8px' }}>
+              <Typography variant='h3' fontWeight='900' style={{ color: 'white', marginBottom: '12px', letterSpacing: '-0.5px' }}>
                 Welcome Back! 👋🏻
               </Typography>
-              <Typography variant='body1' style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                Please sign-in to your TravelYuk account
+              <Typography variant='body1' style={{ color: 'rgba(255, 255, 255, 0.6)', lineHeight: '1.6' }}>
+                Please sign-in to your TravelYuk account to continue your journey.
               </Typography>
             </div>
           </div>
@@ -176,6 +195,7 @@ const Login = ({ mode }: { mode: Mode }) => {
                   autoFocus
                   type='email'
                   label='Email'
+                  sx={inputStyles}
                   onChange={e => {
                     field.onChange(e.target.value)
                   }}
@@ -197,6 +217,7 @@ const Login = ({ mode }: { mode: Mode }) => {
                   label='Password'
                   id='login-password'
                   type={isPasswordShown ? 'text' : 'password'}
+                  sx={inputStyles}
                   onChange={e => {
                     field.onChange(e.target.value)
                   }}
@@ -209,7 +230,7 @@ const Login = ({ mode }: { mode: Mode }) => {
                           onMouseDown={e => e.preventDefault()}
                           aria-label='toggle password visibility'
                         >
-                          <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                          <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} style={{ color: 'rgba(255,255,255,0.5)' }} />
                         </IconButton>
                       </InputAdornment>
                     )
@@ -229,19 +250,23 @@ const Login = ({ mode }: { mode: Mode }) => {
                 Forgot password?
               </Typography>
             </div>
-            <LoadingButton
-              fullWidth
-              variant='contained'
-              type='submit'
-              loading={isLoading}
-            >
-              Log In
-            </LoadingButton>
-            <div className='flex justify-center items-center flex-wrap gap-2'>
-              <Typography>New on our platform?</Typography>
-              <Typography component={Link} href='/register' color='primary'>
-                Create an account
-              </Typography>
+            <div className='flex flex-col gap-6 mt-4'>
+              <LoadingButton
+                fullWidth
+                size='large'
+                variant='contained'
+                type='submit'
+                loading={isLoading}
+                className='py-4 font-bold text-lg shadow-xl shadow-primary/20 rounded-2xl'
+              >
+                Log In
+              </LoadingButton>
+              <div className='flex justify-center items-center flex-wrap gap-2 text-[15px]'>
+                <Typography style={{ color: 'rgba(255, 255, 255, 0.5)' }}>New on our platform?</Typography>
+                <Typography component={Link} href='/register' color='primary' className='font-bold hover:underline underline-offset-4'>
+                  Create an account
+                </Typography>
+              </div>
             </div>
           </form>
           {/* <Button

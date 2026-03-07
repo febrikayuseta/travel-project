@@ -26,7 +26,7 @@ const defaultSuggestions: DefaultSuggestionsType[] = [
     items: [
       {
         label: 'Analytics',
-        href: '/dashboards/analytics',
+        href: '/dashboard',
         icon: 'ri-bar-chart-line'
       },
       {

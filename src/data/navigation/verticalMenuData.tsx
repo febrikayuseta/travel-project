@@ -19,7 +19,7 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
       },
       {
         label: dictionary['navigation'].analytics,
-        href: '/dashboards/analytics'
+        href: '/dashboard'
       },
       {
         label: dictionary['navigation'].eCommerce,
@@ -539,14 +539,14 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
       {
         label: dictionary['navigation'].raiseSupport,
         icon: 'ri-lifebuoy-line',
-        href: 'https://pixinvent.ticksy.com',
+        href: 'https://TravelYuk.ticksy.com',
         suffix: <i className='ri-external-link-line text-xl' />,
         target: '_blank'
       },
       {
         label: dictionary['navigation'].documentation,
         icon: 'ri-book-line',
-        href: 'https://demos.pixinvent.com/materialize-nextjs-admin-template/documentation',
+        href: 'https://demos.TravelYuk.com/materialize-nextjs-admin-template/documentation',
         suffix: <i className='ri-external-link-line text-xl' />,
         target: '_blank'
       },
@@ -563,7 +563,7 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
           },
           {
             label: dictionary['navigation'].externalLink,
-            href: 'https://pixinvent.com',
+            href: 'https://TravelYuk.com',
             target: '_blank',
             suffix: <i className='ri-external-link-line text-xl' />
           },

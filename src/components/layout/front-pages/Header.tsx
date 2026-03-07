@@ -23,6 +23,7 @@ import Typography from '@mui/material/Typography'
 import ModeDropdown from '@components/layout/shared/ModeDropdown'
 import FrontMenu from './FrontMenu'
 import CustomIconButton from '@core/components/mui/IconButton'
+import UserDropdown from '@components/layout/shared/UserDropdown'
 
 // Util Imports
 import { frontLayoutClasses } from '@layouts/utils/layoutClasses'
@@ -30,7 +31,7 @@ import { frontLayoutClasses } from '@layouts/utils/layoutClasses'
 // Styles Imports
 import styles from './styles.module.css'
 
-const Header = ({ mode }: { mode: Mode }) => {
+const Header = ({ mode, isLoggedIn, role }: { mode: Mode; isLoggedIn?: boolean; role?: string }) => {
   // States
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
@@ -70,33 +71,72 @@ const Header = ({ mode }: { mode: Mode }) => {
           <div className='flex items-center gap-2 sm:gap-4'>
             <ModeDropdown />
             {isBelowLgScreen ? (
-              <CustomIconButton
-                component={Link}
-                variant='contained'
-                href='/login'
-                color='primary'
-              >
-                <i className='ri-login-circle-line text-xl' />
-              </CustomIconButton>
-            ) : (
-              <>
-                <Button
+              isLoggedIn ? (
+                <CustomIconButton
                   component={Link}
-                  variant='outlined'
-                  href='/register'
-                  className='whitespace-nowrap'
+                  variant='contained'
+                  href='/dashboard'
+                  color='primary'
                 >
-                  Register
-                </Button>
-                <Button
+                  <i className='ri-dashboard-line text-xl' />
+                </CustomIconButton>
+              ) : (
+                <CustomIconButton
                   component={Link}
                   variant='contained'
                   href='/login'
-                  startIcon={<i className='ri-login-circle-line text-xl' />}
-                  className='whitespace-nowrap'
+                  color='primary'
                 >
-                  Login
-                </Button>
+                  <i className='ri-login-circle-line text-xl' />
+                </CustomIconButton>
+              )
+            ) : (
+              <>
+                {isLoggedIn ? (
+                  <>
+                    {role === 'admin' && (
+                      <Button
+                        component={Link}
+                        variant='text'
+                        href='/admin'
+                        startIcon={<i className='ri-shield-user-line' />}
+                        className='whitespace-nowrap color-textPrimary mr-2'
+                      >
+                        Admin
+                      </Button>
+                    )}
+                    <Button
+                      component={Link}
+                      variant='outlined'
+                      href='/dashboard'
+                      startIcon={<i className='ri-dashboard-line' />}
+                      className='whitespace-nowrap mr-2'
+                    >
+                      Dashboard
+                    </Button>
+                    <UserDropdown />
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      component={Link}
+                      variant='outlined'
+                      href='/register'
+                      className='whitespace-nowrap'
+                    >
+                      Register
+                    </Button>
+                    <Button
+                      component={Link}
+                      variant='contained'
+                      href='/login'
+                      startIcon={<i className='ri-login-circle-line text-xl' />}
+                      className='whitespace-nowrap'
+                    >
+                      Login
+                    </Button>
+                  </>
+                )}
               </>
             )}
           </div>

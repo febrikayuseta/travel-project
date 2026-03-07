@@ -19,7 +19,7 @@ const data: SearchData[] = [
   {
     id: '2',
     name: 'Analytics Dashboard',
-    url: '/dashboards/analytics',
+    url: '/dashboard',
     icon: 'ri-bar-chart-line',
     section: 'Dashboards'
   },

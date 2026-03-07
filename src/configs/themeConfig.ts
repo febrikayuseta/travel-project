@@ -55,7 +55,7 @@ export type Config = {
 
 const themeConfig: Config = {
   templateName: 'TravelYuk',
-  homePageUrl: '/',
+  homePageUrl: '/dashboard',
   settingsCookieName: 'travelyuk-settings',
   mode: 'system', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'

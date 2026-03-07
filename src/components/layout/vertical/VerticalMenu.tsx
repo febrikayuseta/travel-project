@@ -83,7 +83,7 @@ const VerticalMenu = ({ dictionary, scrollMenu, role }: Props) => {
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
         <MenuSection label='User Access'>
-          <MenuItem href='/' icon={<i className='ri-home-smile-line' />}>
+          <MenuItem href='/dashboard' icon={<i className='ri-home-smile-line' />}>
             Explore Activities
           </MenuItem>
           <MenuItem href='/cart' icon={<i className='ri-shopping-cart-2-line' />}>

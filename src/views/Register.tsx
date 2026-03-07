@@ -39,31 +39,28 @@ type FormData = InferInput<typeof schema>
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
 
 const schema = object({
-    fullname: pipe(string(), minLength(1, 'This field is required')),
-    email: pipe(string(), minLength(1, 'This field is required')),
-    phone: pipe(string(), minLength(1, 'This field is required')),
-    company: pipe(string(), minLength(1, 'This field is required')),
-    position: pipe(string(), minLength(1, 'This field is required')),
-    password: pipe(
-      string(),
-      minLength(1, 'This field is required'),
-      minLength(8, 'Password must be at least 8 characters long')
-    ),
-    confirm_password: pipe(
-      string(),
-      minLength(1, 'This field is required'),
-      minLength(8, 'Confirm Password must be at least 8 characters long')
-    ),
-    terms: boolean('You must accept the terms and conditions')
-  })
+  fullname: pipe(string(), minLength(1, 'This field is required')),
+  email: pipe(string(), minLength(1, 'This field is required')),
+  phone: pipe(string(), minLength(1, 'This field is required')),
+  password: pipe(string(), minLength(1, 'This field is required')),
+  confirm_password: pipe(string(), minLength(1, 'This field is required')),
+  terms: boolean('You must accept the terms and conditions')
+})
 
-const positions = [
-  { value: 'Staff', label: 'Staff' },
-  { value: 'Business Owner', label: 'Business Owner' },
-  { value: 'C-Level', label: 'C-Level (CEO/CFO/COO, etc)' },
-  { value: 'Senior Manager', label: 'Senior Manager (Head/VP, etc)' },
-  { value: 'Other', label: 'Other' },
-]
+
+
+const inputStyles = {
+  '& .MuiInputBase-input': { color: 'white' },
+  '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.2)' },
+    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.4)' },
+    '&.Mui-focused fieldset': { borderColor: 'var(--mui-palette-primary-main)' },
+    '& .MuiSelect-select': { color: 'white' },
+    '& .MuiSvgIcon-root': { color: 'rgba(255, 255, 255, 0.5)' }
+  },
+  '& .MuiInputLabel-root.Mui-focused': { color: 'var(--mui-palette-primary-main)' }
+}
 
 const Register = ({ mode }: { mode: Mode }) => {
   // States
@@ -72,8 +69,8 @@ const Register = ({ mode }: { mode: Mode }) => {
   const [isLoading, setIsLoading] = useState(false)
 
   // Vars
-  const authBackground = 'https://images.unsplash.com/photo-1542314831-c6a4d14effea?auto=format&fit=crop&w=1920&q=80'
-  const characterIllustration = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80'
+  const authBackground = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80'
+  const characterIllustration = 'https://images.unsplash.com/photo-14364d1865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80'
 
   // Hooks
   const router = useRouter()
@@ -89,8 +86,6 @@ const Register = ({ mode }: { mode: Mode }) => {
       fullname: '',
       email: '',
       phone: '',
-      company: '',
-      position: '',
       password: '',
       confirm_password: '',
       terms: false
@@ -117,8 +112,6 @@ const Register = ({ mode }: { mode: Mode }) => {
           fullname: data.fullname,
           email: data.email,
           phone: data.phone,
-          company: data.company,
-          position: data.position,
           password: data.password,
           confirm_password: data.confirm_password
         })
@@ -142,11 +135,11 @@ const Register = ({ mode }: { mode: Mode }) => {
   }
 
   return (
-    <div className='flex h-[100dvh] w-full overflow-hidden bg-[#121212] relative'>
-      {/* Left side: Illustration (Hidden on mobile) */}
+    <div className='flex h-screen w-full overflow-hidden bg-[#0a0a0c] relative'>
+      {/* Left side: Immersive Travel Scene */}
       <div
         className={classnames(
-          'relative hidden md:flex flex-1 h-full items-center justify-center p-12 overflow-hidden',
+          'relative hidden md:flex flex-1 items-center justify-center p-16 overflow-hidden',
           {
             'border-e border-white/5': settings.skin === 'bordered'
           }
@@ -155,169 +148,171 @@ const Register = ({ mode }: { mode: Mode }) => {
         <div
           className='absolute inset-0 z-0'
           style={{
-            backgroundImage: `url(${authBackground})`,
+            backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.4)), url(${authBackground})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            opacity: 0.7
+            backgroundRepeat: 'no-repeat'
           }}
         />
-        <img
-          src={characterIllustration}
-          alt='character-illustration'
-          className='z-10 max-w-[550px] w-full rounded-2xl shadow-2xl object-cover aspect-[4/3] border-[6px] border-white/10'
-        />
+        <div className='z-10 relative text-center flex flex-col items-center gap-6 px-10'>
+          <div className='relative'>
+            <div className='absolute -inset-6 bg-primary/30 blur-[60px] rounded-full' />
+            <i className='ri-compass-3-line text-white text-[100px] relative z-10 opacity-90' />
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Typography variant='h1' className='text-white font-black tracking-tighter leading-none' style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+              EXPLORE THE <span className='text-primary'>UNSEEN</span>
+            </Typography>
+            <div className='h-1.5 w-32 bg-primary mx-auto my-2 rounded-full shadow-[0_0_20px_rgba(var(--mui-palette-primary-mainChannel),0.5)]' />
+          </div>
+          <Typography variant='h4' className='text-white/70 font-light italic max-w-[500px] leading-relaxed'>
+            &quot;Adventure is worthwhile in itself. Join our community of world explorers and start your journey.&quot;
+          </Typography>
+        </div>
       </div>
 
       {/* Right side: Register Form */}
-      <div className='flex flex-col justify-center items-center w-full md:w-[480px] h-full bg-[#2f2b3d] p-8 md:p-12 relative z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] overflow-y-auto'>
-        <div className='flex flex-col gap-8 w-full max-w-[400px] z-30'>
+      <div className='flex flex-col justify-center items-center w-full md:w-[520px] h-full bg-[#1c1b29] p-8 md:p-12 relative z-20 shadow-2xl overflow-y-auto'>
+        <div className='flex flex-col gap-8 w-full max-w-[420px] z-30 py-8'>
           <div className='flex flex-col gap-6'>
             <Link
               href='/'
-              className='flex items-center gap-3 self-start py-2.5 px-6 rounded-full bg-primary/15 transition-all hover:bg-primary/25'
+              className='flex items-center gap-3 self-start py-3 px-7 rounded-full bg-primary/20 border border-primary/20 transition-all hover:bg-primary/30 shadow-lg shadow-primary/10'
             >
               <i className='ri-flight-takeoff-line text-primary text-3xl' />
-              <Typography variant='h5' className='font-bold uppercase tracking-[2px] text-primary'>
+              <Typography variant='h5' className='font-bold uppercase tracking-[3px] text-primary'>
                 TravelYuk
               </Typography>
             </Link>
             <div>
-              <Typography variant='h4' fontWeight='bold' style={{ color: 'white', marginBottom: '8px' }}>
+              <Typography
+                variant='h3'
+                fontWeight='900'
+                style={{ color: 'white', marginBottom: '12px', letterSpacing: '-0.5px' }}
+              >
                 Join the Adventure! 🗺️
               </Typography>
-              <Typography variant='body1' style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                Create your account and start exploring the world.
+              <Typography variant='body1' style={{ color: 'rgba(255, 255, 255, 0.6)', lineHeight: '1.6' }}>
+                Create your account and unlock a world of exclusive experiences.
               </Typography>
             </div>
           </div>
 
-          <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-5'>
-            <Controller
-              name='fullname'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label='Full Name'
-                  error={!!errors.fullname}
-                  helperText={errors.fullname?.message}
-                />
-              )}
-            />
-            <Controller
-              name='email'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label='Work Email'
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              )}
-            />
-             <Controller
-              name='phone'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label='Phone Number'
-                  error={!!errors.phone}
-                  helperText={errors.phone?.message}
-                />
-              )}
-            />
-            <Controller
-              name='company'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label='Company Name'
-                  error={!!errors.company}
-                  helperText={errors.company?.message}
-                />
-              )}
-            />
-             <Controller
-              name='position'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  select
-                  fullWidth
-                  label='Position'
-                  error={!!errors.position}
-                  helperText={errors.position?.message}
-                >
-                  {positions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
-            />
-            <Controller
-              name='password'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label='Password'
-                  type={isPasswordShown ? 'text' : 'password'}
-                  error={!!errors.password}
-                  helperText={errors.password?.message || '(Minimal 8 karakter, 1 angka, 1 huruf besar)'}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={e => e.preventDefault()}>
-                          <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              )}
-            />
-             <Controller
-              name='confirm_password'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label='Confirm Password'
-                  type={isConfirmPasswordShown ? 'text' : 'password'}
-                  error={!!errors.confirm_password}
-                  helperText={errors.confirm_password?.message}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton edge='end' onClick={handleClickShowConfirmPassword} onMouseDown={e => e.preventDefault()}>
-                          <i className={isConfirmPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              )}
-            />
+          <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-8'>
+            <div className='flex flex-col gap-5'>
+              <Typography variant='overline' style={{ color: 'rgba(255, 255, 255, 0.4)', fontWeight: 'bold' }}>
+                Personal Details
+              </Typography>
+              <Controller
+                name='fullname'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label='Full Name'
+                    sx={inputStyles}
+                    error={!!errors.fullname}
+                    helperText={errors.fullname?.message}
+                  />
+                )}
+              />
+              <Controller
+                name='email'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label='Email'
+                    sx={inputStyles}
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                  />
+                )}
+              />
+              <Controller
+                name='phone'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label='Phone Number'
+                    sx={inputStyles}
+                    error={!!errors.phone}
+                    helperText={errors.phone?.message}
+                  />
+                )}
+              />
+
+            </div>
+
+            <div className='flex flex-col gap-5'>
+              <Typography variant='overline' style={{ color: 'rgba(255, 255, 255, 0.4)', fontWeight: 'bold' }}>
+                Account Security
+              </Typography>
+              <Controller
+                name='password'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label='Password'
+                    type={isPasswordShown ? 'text' : 'password'}
+                    sx={inputStyles}
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onClick={handleClickShowPassword}
+                            onMouseDown={e => e.preventDefault()}
+                          >
+                            <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} style={{ color: 'rgba(255,255,255,0.5)' }} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name='confirm_password'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label='Confirm Password'
+                    type={isConfirmPasswordShown ? 'text' : 'password'}
+                    error={!!errors.confirm_password}
+                    helperText={errors.confirm_password?.message}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onClick={handleClickShowConfirmPassword}
+                            onMouseDown={e => e.preventDefault()}
+                          >
+                            <i className={isConfirmPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                )}
+              />
+            </div>
             <div className='flex items-center gap-3'>
               <Controller
                 name='terms'
@@ -326,12 +321,17 @@ const Register = ({ mode }: { mode: Mode }) => {
                   <FormControlLabel
                     control={<Checkbox {...field} checked={field.value} />}
                     label={
-                      <>
+                      <Typography style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                         <span>I agree with </span>
-                        <Link className='text-primary' href='/terms-conditions' target="_blank" onClick={e => e.stopPropagation()}>
+                        <Link
+                          className='text-primary'
+                          href='/terms-conditions'
+                          target='_blank'
+                          onClick={e => e.stopPropagation()}
+                        >
                           Terms & Conditions
                         </Link>
-                      </>
+                      </Typography>
                     }
                   />
                 )}
@@ -343,19 +343,28 @@ const Register = ({ mode }: { mode: Mode }) => {
               </Typography>
             )}
 
-            <LoadingButton
-              fullWidth
-              variant='contained'
-              type='submit'
-              loading={isLoading}
-            >
-              Create Account
-            </LoadingButton>
-            <div className='flex justify-center items-center flex-wrap gap-2'>
-              <Typography>Sudah memiliki akun?</Typography>
-              <Typography component={Link} href='/login' color='primary'>
-                Sign in
-              </Typography>
+            <div className='flex flex-col gap-6 mt-4'>
+              <LoadingButton
+                fullWidth
+                size='large'
+                variant='contained'
+                type='submit'
+                loading={isLoading}
+                className='py-4 font-bold text-lg shadow-xl shadow-primary/20 rounded-2xl'
+              >
+                Create Account
+              </LoadingButton>
+              <div className='flex justify-center items-center flex-wrap gap-2 text-[15px]'>
+                <Typography style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Already have an account?</Typography>
+                <Typography
+                  component={Link}
+                  href='/login'
+                  color='primary'
+                  className='font-bold hover:underline underline-offset-4'
+                >
+                  Sign in
+                </Typography>
+              </div>
             </div>
           </form>
         </div>

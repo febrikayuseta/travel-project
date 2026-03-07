@@ -70,16 +70,16 @@ const socialAccountsArr: SocialAccountsType[] = [
   {
     title: 'Twitter',
     isConnected: true,
-    username: '@Pixinvent',
+    username: '@TravelYuk',
     logo: '/images/logos/twitter.png',
-    href: 'https://twitter.com/pixinvents'
+    href: 'https://twitter.com/TravelYuks'
   },
   {
     title: 'Linkedin',
     isConnected: true,
-    username: '@Pixinvent',
+    username: '@TravelYuk',
     logo: '/images/logos/linkedin.png',
-    href: 'https://www.linkedin.com/in/pixinvent-creative-studio-561a4713b'
+    href: 'https://www.linkedin.com/in/TravelYuk-creative-studio-561a4713b'
   },
   {
     title: 'Dribbble',

@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import type { MouseEvent } from 'react'
 
 // Next Imports
@@ -46,6 +46,7 @@ const BadgeContentSpan = styled('span')({
 const UserDropdown = () => {
   // States
   const [open, setOpen] = useState(false)
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string; role: string; avatar: string } | null>(null)
 
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -55,6 +56,24 @@ const UserDropdown = () => {
   const { data: session } = useSession()
   const { settings } = useSettings()
   const { lang: locale } = useParams()
+
+  // Load custom cookie info if exists
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`
+      const parts = value.split(`; ${name}=`)
+      if (parts.length === 2) return parts.pop()?.split(';').shift()
+    }
+
+    const cookieUser = getCookie('user_info')
+    if (cookieUser) {
+      try {
+        setUserInfo(JSON.parse(decodeURIComponent(cookieUser)))
+      } catch (e) {
+        console.error('Error parsing user_info cookie', e)
+      }
+    }
+  }, [])
 
   const handleDropdownOpen = () => {
     !open ? setOpen(true) : setOpen(false)
@@ -74,15 +93,27 @@ const UserDropdown = () => {
 
   const handleUserLogout = async () => {
     try {
-      // Sign out from the app
-      await signOut({ callbackUrl: '/login' })
+      // Clear next-auth session if exists
+      if (session) {
+        await signOut({ callbackUrl: '/login' })
+      } else {
+        // Handle custom logout via API
+        const response = await fetch('/api/auth/logout', { method: 'POST' })
+        if (response.ok) {
+          router.push('/login')
+          router.refresh()
+        }
+      }
     } catch (error) {
       console.error(error)
-
-      // Show above error in a toast like following
-      // toastService.error((err as Error).message)
     }
   }
+
+  // Determine display data (prefer cookie if session is empty)
+  const displayName = session?.user?.name || userInfo?.name || 'User'
+  const displayEmail = session?.user?.email || userInfo?.email || ''
+  const displayAvatar = session?.user?.image || userInfo?.avatar || ''
+  const displayRole = userInfo?.role || 'User'
 
   return (
     <>
@@ -95,8 +126,8 @@ const UserDropdown = () => {
       >
         <Avatar
           ref={anchorRef}
-          alt={session?.user?.name || ''}
-          src={session?.user?.image || ''}
+          alt={displayName}
+          src={displayAvatar}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -123,12 +154,15 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-4 gap-2' tabIndex={-1}>
-                    <Avatar alt={session?.user?.name || ''} src={session?.user?.image || ''} />
+                    <Avatar alt={displayName} src={displayAvatar} />
                     <div className='flex items-start flex-col'>
                       <Typography variant='body2' className='font-medium' color='text.primary'>
-                        {session?.user?.name || ''}
+                        {displayName}
                       </Typography>
-                      <Typography variant='caption'>{session?.user?.email || ''}</Typography>
+                      <Typography variant='caption' className='text-xs opacity-70'>{displayEmail}</Typography>
+                      <Typography variant='caption' className='font-bold uppercase tracking-widest text-[10px] text-primary mt-1'>
+                        {displayRole}
+                      </Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />

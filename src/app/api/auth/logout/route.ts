@@ -19,12 +19,17 @@ export async function POST(req: Request) {
   }
 
   const response = NextResponse.redirect(new URL("/login", req.url))
-  response.cookies.set("token", "", {
+  
+  const cookieOptions = {
     httpOnly: true,
     path: "/",
-    sameSite: "lax",
+    sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
     maxAge: 0,
-  })
+  }
+
+  response.cookies.set("token", "", cookieOptions)
+  response.cookies.set("user_info", "", { ...cookieOptions, httpOnly: false })
+  
   return response
 }

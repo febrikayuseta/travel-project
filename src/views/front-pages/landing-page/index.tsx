@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Mode } from '@core/types'
 import { useSettings } from '@core/hooks/useSettings'
 import Typography from '@mui/material/Typography'
@@ -10,9 +11,13 @@ import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
+import Skeleton from '@mui/material/Skeleton'
+import Grid from '@mui/material/Grid'
 
 import classnames from 'classnames'
 import { motion } from 'framer-motion'
+import { Banner } from '@/types/project-types'
+import { parseApiData } from '@/utils/apiUtils'
 
 const HeroSection = () => {
   return (
@@ -46,7 +51,12 @@ const HeroSection = () => {
               ),
             }}
           />
-          <Button variant='contained' size='large' className='rounded-full px-8 py-3 whitespace-nowrap min-w-[150px] shadow-primary'>
+          <Button 
+            variant='contained' 
+            size='large' 
+            className='rounded-full px-8 py-3 whitespace-nowrap min-w-[150px] shadow-primary'
+            onClick={() => window.location.href = '/dashboard'}
+          >
             Search
           </Button>
         </div>
@@ -56,11 +66,40 @@ const HeroSection = () => {
 }
 
 const PopularDestinations = () => {
-  const destinations = [
-    { name: 'Bali, Indonesia', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80', description: 'Tropical beaches and spiritual retreats combined.', price: '$599' },
-    { name: 'Paris, France', image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80', description: 'The absolute city of love, fashion, and art.', price: '$899' },
-    { name: 'Swiss Alps', image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80', description: 'Breathtaking mountain peaks pushing to the sky.', price: '$1200' },
-  ]
+  const [banners, setBanners] = useState<Banner[]>([])
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  const checkIsLoggedIn = () => {
+    return document.cookie.split(';').some((item) => item.trim().startsWith('user_info='))
+  }
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/banners`, {
+          headers: { apiKey: process.env.NEXT_PUBLIC_API_KEY || '' }
+        })
+        const json = await response.json()
+        const data = parseApiData<Banner[]>(json)
+        setBanners(data)
+      } catch (error) {
+        console.error('Error fetching banners:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBanners()
+  }, [])
+
+  const handleExplore = () => {
+    if (checkIsLoggedIn()) {
+      router.push('/dashboard')
+    } else {
+      router.push('/login?redirectTo=/dashboard')
+    }
+  }
 
   return (
     <section className='plb-[100px] bg-backgroundDefault px-6 md:px-12 lg:px-24'>
@@ -72,51 +111,59 @@ const PopularDestinations = () => {
         className='text-center mbe-16'
       >
         <Typography variant='h3' className='font-bold mbe-4'>Popular Destinations</Typography>
-        <Typography color='text.secondary'>Explore our most sought-after locations curated just for you.</Typography>
+        <Typography color='text.secondary'>Explore our most sought-after locations curated just for you from our live banners.</Typography>
       </motion.div>
       
       <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-        {destinations.map((dest, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.2 }}
-          >
-            <Card className='overflow-hidden group hover:-translate-y-2 transition-transform duration-300 shadow-xl cursor-pointer rounded-2xl'>
-              <div className='relative overflow-hidden bs-[300px]'>
-                <CardMedia
-                  component='img'
-                  image={dest.image}
-                  alt={dest.name}
-                  className='bs-full object-cover group-hover:scale-110 transition-transform duration-700'
-                />
-                <div className='absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent'>
-                  <Typography variant='h5' className='text-white font-bold'>{dest.name}</Typography>
-                </div>
-                <div className='absolute top-4 right-4 bg-primary text-white font-bold px-4 py-1.5 rounded-full text-sm shadow-lg backdrop-blur-sm'>
-                  From {dest.price}
-                </div>
-              </div>
-              <CardContent className='p-6'>
-                <Typography color='text.secondary' className='mbe-6 text-[15px]'>
-                  {dest.description}
-                </Typography>
-                <div className='flex justify-between items-center'>
-                  <div className='flex text-warning text-lg'>
-                    <i className='ri-star-fill' />
-                    <i className='ri-star-fill' />
-                    <i className='ri-star-fill' />
-                    <i className='ri-star-fill' />
-                    <i className='ri-star-half-fill' />
+        {loading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className='bs-[450px]'>
+              <Skeleton variant="rectangular" className='rounded-2xl bs-full' />
+            </div>
+          ))
+        ) : (
+          banners.slice(0, 6).map((banner, index) => (
+            <motion.div
+              key={banner.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <Card className='overflow-hidden group hover:-translate-y-2 transition-transform duration-300 shadow-xl cursor-pointer rounded-2xl h-full' onClick={handleExplore}>
+                <div className='relative overflow-hidden bs-[300px]'>
+                  <CardMedia
+                    component='img'
+                    image={banner.imageUrl}
+                    alt={banner.name}
+                    className='bs-full object-cover group-hover:scale-110 transition-transform duration-700'
+                  />
+                  <div className='absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent'>
+                    <Typography variant='h5' className='text-white font-bold'>{banner.name}</Typography>
                   </div>
-                  <Button variant='outlined' size='small' className='rounded-full px-5'>Explore</Button>
+                  <div className='absolute top-4 right-4 bg-primary text-white font-bold px-4 py-1.5 rounded-full text-sm shadow-lg backdrop-blur-sm'>
+                    Live Offer
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+                <CardContent className='p-6'>
+                  <Typography color='text.secondary' className='mbe-6 text-[15px]'>
+                    Experience the beauty of {banner.name} with our exclusive travel packages.
+                  </Typography>
+                  <div className='flex justify-between items-center'>
+                    <div className='flex text-warning text-lg'>
+                      <i className='ri-star-fill' />
+                      <i className='ri-star-fill' />
+                      <i className='ri-star-fill' />
+                      <i className='ri-star-fill' />
+                      <i className='ri-star-fill text-white/20' />
+                    </div>
+                    <Button variant='outlined' size='small' className='rounded-full px-5' onClick={handleExplore}>Explore</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))
+        )}
       </div>
     </section>
   )
@@ -199,7 +246,13 @@ const CTASection = () => {
           <Button variant='contained' color='secondary' size='large' className='rounded-full px-10 py-3 shadow-lg hover:shadow-xl transition-shadow font-bold'>
             Join our Newsletter
           </Button>
-          <Button variant='outlined' sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.7)', '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }}} size='large' className='rounded-full px-10 py-3 font-bold backdrop-blur-sm'>
+          <Button 
+            variant='outlined' 
+            sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.7)', '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }}} 
+            size='large' 
+            className='rounded-full px-10 py-3 font-bold backdrop-blur-sm'
+            onClick={() => window.location.href = '/dashboard'}
+          >
             View Packages
           </Button>
         </div>
