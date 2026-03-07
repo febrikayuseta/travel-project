@@ -1,19 +1,24 @@
-import InvoiceListTable from '@views/apps/invoice/list/InvoiceListTable'
-import { getInvoiceData } from '@/app/server/actions'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
-const AdminPromosPage = async () => {
-  const data = await getInvoiceData()
+// Component Imports
+import PromoListTable from '@/views/admin/promos/PromoListTable'
 
+const AdminPromosPage = () => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Typography variant='h4'>Manage Promos</Typography>
-        <Typography color='textSecondary'>Configure and track promotional offers.</Typography>
+        <div className='mb-6'>
+          <Typography variant='h3' fontWeight='bold' className='mb-2'>
+            Promotions & Campaigns
+          </Typography>
+          <Typography color='textSecondary' className='text-lg'>
+            Monitor your marketing efforts and adjust discount strategies.
+          </Typography>
+        </div>
       </Grid>
       <Grid item xs={12}>
-        <InvoiceListTable invoiceData={data} />
+        <PromoListTable />
       </Grid>
     </Grid>
   )

@@ -33,17 +33,6 @@ const nextConfig = {
       }
     ]
   },
-  async rewrites() {
-    // Definisikan URL di sini dengan cadangan (fallback)
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL
-
-    return [
-      {
-        source: '/api/proxy/:path*',
-        destination: `${apiUrl}/:path*`
-      }
-    ]
-  },
   async redirects() {
     return [
       {
