@@ -165,7 +165,7 @@ const TransactionDetailsPage = () => {
       <div className='flex justify-between items-center flex-wrap gap-4'>
         <div>
           <Typography variant='h3' fontWeight='bold' className='mb-1'>
-            Booking Detail #{id.slice(0, 8)}
+            Booking Detail {transaction.invoiceId || `#${id.slice(0, 8)}`}
           </Typography>
           <Typography color='text.secondary'>
             Created on {transaction.createdAt ? new Date(transaction.createdAt).toLocaleString() : 'N/A'}
@@ -191,7 +191,7 @@ const TransactionDetailsPage = () => {
                   const activity = cart.activity
                   const price = activity?.price_discount || activity?.price || 0
                   return (
-                    <Box key={cart.id} p={4} display='flex' gap={4} alignItems='center' borderBottom={idx < transaction.carts.length - 1 ? 1 : 0} borderColor='divider'>
+                    <Box key={cart.id} p={4} display='flex' gap={4} alignItems='center' borderBottom={idx < (transaction.carts?.length || 0) - 1 ? 1 : 0} borderColor='divider'>
                       {activity?.imageUrls?.[0] ? (
                         <img src={activity.imageUrls[0]} alt={activity.title} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
                       ) : (
@@ -324,7 +324,7 @@ const TransactionDetailsPage = () => {
                   <LoadingButton
                     fullWidth
                     color='error'
-                    variant='tonal'
+                    variant='outlined'
                     onClick={handleCancel}
                     loading={cancelling}
                     startIcon={<i className='ri-close-line' />}

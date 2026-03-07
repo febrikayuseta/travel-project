@@ -11,6 +11,8 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import CircularProgress from '@mui/material/CircularProgress'
 import Chip from '@mui/material/Chip'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
 
 // Type Imports
 import type { Transaction } from '@/types/project-types'
@@ -34,6 +36,7 @@ const TransactionListTable = () => {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const fetchTransactions = async () => {
     setLoading(true)
@@ -50,6 +53,16 @@ const TransactionListTable = () => {
     }
   }
 
+  const filteredData = data.filter(tx => {
+    const search = searchTerm.toLowerCase()
+    return (
+      (tx.invoiceId?.toLowerCase().includes(search) ?? false) ||
+      (tx.id?.toLowerCase().includes(search) ?? false) ||
+      (tx.status?.toLowerCase().includes(search) ?? false) ||
+      tx.totalAmount?.toString().includes(search)
+    )
+  })
+
   useEffect(() => {
     fetchTransactions()
   }, [])
@@ -58,19 +71,35 @@ const TransactionListTable = () => {
     <Card className='rounded-3xl shadow-xl border border-divider overflow-hidden'>
       <CardHeader 
         title={<Typography variant='h5' fontWeight='bold'>Global Transaction Log</Typography>}
-        className='p-6'
+        action={
+          <TextField
+            size='small'
+            placeholder='Search Transactions...'
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <i className='ri-search-line' />
+                </InputAdornment>
+              )
+            }}
+            sx={{ minWidth: 250 }}
+          />
+        }
+        className='p-6 flex-col sm:flex-row items-start sm:items-center gap-4'
       />
       <Divider />
       
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
-          <thead className='bg-primary/5'>
+          <thead className='!bg-primary/10'>
             <tr>
-              <th className='px-6 py-5 text-left font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Order ID</th>
-              <th className='px-6 py-5 text-left font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Date</th>
-              <th className='px-6 py-5 text-left font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Amount</th>
-              <th className='px-6 py-5 text-center font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Status</th>
-              <th className='px-6 py-5 text-right font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Actions</th>
+              <th className='!px-6 !py-5 !text-left font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Order ID</th>
+              <th className='!px-6 !py-5 !text-left font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Date</th>
+              <th className='!px-6 !py-5 !text-left font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Amount</th>
+              <th className='!px-6 !py-5 !text-center font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Status</th>
+              <th className='!px-6 !py-5 !text-right font-bold uppercase tracking-widest text-[11px] text-primary whitespace-nowrap border-b border-divider'>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -81,21 +110,21 @@ const TransactionListTable = () => {
                   <Typography className='mt-4 opacity-60 font-medium'>Syncing Transactions...</Typography>
                 </td>
               </tr>
-            ) : data.length === 0 ? (
+            ) : filteredData.length === 0 ? (
               <tr>
                 <td colSpan={5} className='text-center py-20 opacity-40 font-bold text-lg italic'>
-                  No transactions history
+                  No transactions matches your search
                 </td>
               </tr>
             ) : (
-              data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(tx => (
+              filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(tx => (
                 <tr key={tx.id} className='hover:bg-actionHover transition-colors border-b border-divider last:border-0'>
                   <td className='p-4'>
                     <Typography variant='body2' fontWeight='bold' color='primary'>
-                      #{tx.id.split('-')[0].toUpperCase()}
+                      {tx.invoiceId || `#${tx.id.split('-')[0].toUpperCase()}`}
                     </Typography>
                     <Typography variant='caption' className='block opacity-50'>
-                      Items: {tx.carts?.length || 0}
+                      Items: {tx.transaction_items?.length || tx.carts?.length || 0}
                     </Typography>
                   </td>
                   <td className='p-4'>
@@ -135,7 +164,7 @@ const TransactionListTable = () => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component='div'
-        count={data.length}
+        count={filteredData.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={(_, newPage) => setPage(newPage)}

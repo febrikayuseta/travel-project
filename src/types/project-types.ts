@@ -104,7 +104,9 @@ export type TransactionStatus = "pending" | "success" | "failed" | "cancelled"
 export type Transaction = {
   id: string
   userId: string
-  carts: Cart[]
+  invoiceId?: string
+  transaction_items?: any[]
+  carts?: Cart[]
   totalAmount?: number
   proofPaymentUrl?: string
   paymentMethodId?: string

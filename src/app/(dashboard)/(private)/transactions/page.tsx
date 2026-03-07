@@ -18,6 +18,8 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Skeleton from '@mui/material/Skeleton'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
 
 // Type Imports
 import type { Transaction } from '@/types/project-types'
@@ -29,6 +31,7 @@ const TransactionsPage = () => {
   // States
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -46,6 +49,16 @@ const TransactionsPage = () => {
     }
     fetchTransactions()
   }, [])
+
+  const filteredTransactions = transactions.filter(tx => {
+    const search = searchTerm.toLowerCase()
+    return (
+      (tx.invoiceId?.toLowerCase().includes(search) ?? false) ||
+      (tx.id?.toLowerCase().includes(search) ?? false) ||
+      (tx.status?.toLowerCase().includes(search) ?? false) ||
+      tx.totalAmount?.toString().includes(search)
+    )
+  })
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -81,6 +94,23 @@ const TransactionsPage = () => {
         </Typography>
       </div>
 
+      <div className='flex justify-end'>
+        <TextField
+          size='small'
+          placeholder='Search your bookings...'
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position='start'>
+                <i className='ri-search-line' />
+              </InputAdornment>
+            )
+          }}
+          sx={{ minWidth: 300, bgcolor: 'background.paper', borderRadius: 1 }}
+        />
+      </div>
+
       <Card>
         {transactions.length === 0 ? (
           <CardContent className='text-center p-12 flex flex-col items-center gap-4'>
@@ -103,11 +133,18 @@ const TransactionsPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {transactions.map(transaction => (
+                {filteredTransactions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align='center' className='py-10 opacity-50 italic'>
+                      No bookings found matching "{searchTerm}"
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredTransactions.map(transaction => (
                   <TableRow key={transaction.id} hover>
                     <TableCell>
                       <Typography fontWeight='bold' variant='body2'>
-                        #{transaction.id.slice(0, 8)}...
+                        {transaction.invoiceId || `#${transaction.id.slice(0, 8)}...`}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -137,8 +174,9 @@ const TransactionsPage = () => {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
+                ))
+              )}
+            </TableBody>
             </Table>
           </TableContainer>
         )}
