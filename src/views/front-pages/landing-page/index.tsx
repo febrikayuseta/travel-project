@@ -20,6 +20,16 @@ import { Banner } from '@/types/project-types'
 import { parseApiData } from '@/utils/apiUtils'
 
 const HeroSection = () => {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      window.location.href = `/dashboard?search=${encodeURIComponent(searchQuery)}`
+    } else {
+      window.location.href = '/dashboard'
+    }
+  }
+
   return (
     <section className='relative bs-[calc(100vh+80px)] flex items-center justify-center' style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', marginTop: '-80px' }}>
       <div className='absolute inset-0 bg-black/40 z-0' />
@@ -42,11 +52,18 @@ const HeroSection = () => {
             placeholder="Where do you want to go?"
             fullWidth
             className='px-6'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            sx={{
+              '& .MuiInputBase-input': { color: 'rgba(0, 0, 0, 0.87)' },
+              '& .MuiInputBase-input::placeholder': { color: 'rgba(0, 0, 0, 0.6)', opacity: 1 },
+            }}
             InputProps={{
               disableUnderline: true,
               startAdornment: (
                 <InputAdornment position="start">
-                  <i className="ri-map-pin-line text-xl" />
+                  <i className="ri-map-pin-line text-xl text-black/60" />
                 </InputAdornment>
               ),
             }}
@@ -55,7 +72,7 @@ const HeroSection = () => {
             variant='contained' 
             size='large' 
             className='rounded-full px-8 py-3 whitespace-nowrap min-w-[150px] shadow-primary'
-            onClick={() => window.location.href = '/dashboard'}
+            onClick={handleSearch}
           >
             Search
           </Button>

@@ -1,5 +1,6 @@
 // Next Imports
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 
 // Component Imports
 import ForgotPasswordVerifyOtp from '@views/ForgotPasswordVerifyOtp'
@@ -16,7 +17,11 @@ const ForgotPasswordVerifyOtpPage = () => {
   // Vars
   const mode = getServerMode()
 
-  return <ForgotPasswordVerifyOtp mode={mode} />
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ForgotPasswordVerifyOtp mode={mode} />
+    </Suspense>
+  )
 }
 
 export default ForgotPasswordVerifyOtpPage

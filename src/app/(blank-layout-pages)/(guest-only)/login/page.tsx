@@ -1,5 +1,6 @@
 // Next Imports
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 
 // Component Imports
 import Login from '@views/Login'
@@ -16,7 +17,11 @@ const LoginPage = () => {
   // Vars
   const mode = getServerMode()
 
-  return <Login mode={mode} />
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Login mode={mode} />
+    </Suspense>
+  )
 }
 
 export default LoginPage

@@ -1,5 +1,6 @@
 // Next Imports
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 
 // Component Imports
 import VerifyEmail from '@views/VerifyEmail'
@@ -16,7 +17,11 @@ const VerifyEmailPage = () => {
   // Vars
   const mode = getServerMode()
 
-  return <VerifyEmail mode={mode} />
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmail mode={mode} />
+    </Suspense>
+  )
 }
 
 export default VerifyEmailPage

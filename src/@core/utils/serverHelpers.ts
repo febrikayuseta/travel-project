@@ -16,7 +16,11 @@ export const getSettingsFromCookie = (): Settings => {
 
   const cookieName = themeConfig.settingsCookieName
 
-  return JSON.parse(cookieStore.get(cookieName)?.value || '{}')
+  try {
+    return JSON.parse(cookieStore.get(cookieName)?.value || '{}')
+  } catch (error) {
+    return {}
+  }
 }
 
 export const getMode = () => {
