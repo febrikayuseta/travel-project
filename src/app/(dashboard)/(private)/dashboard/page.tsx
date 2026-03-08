@@ -24,7 +24,7 @@ async function getPublicData<T>(path: string): Promise<T[]> {
   try {
     const response = await fetch(`${API_BASE}${path}`, {
       headers: { apiKey: API_KEY },
-      next: { revalidate: 3600 } // Cache for 1 hour
+      cache: 'no-store'
     })
     if (!response.ok) return []
     const json = await response.json()

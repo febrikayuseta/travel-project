@@ -21,6 +21,7 @@ import type { User } from '@/types/project-types'
 
 // Utils Imports
 import { parseApiData } from '@/utils/apiUtils'
+import ImageUploader from '@/components/ImageUploader'
 
 const AccountDetails = () => {
   // States
@@ -100,21 +101,26 @@ const AccountDetails = () => {
         <form onSubmit={handleSave}>
           <Grid container spacing={6}>
             {/* Profile Picture Preview */}
-            <Grid item xs={12} className='flex items-center gap-6 mbe-4'>
-              <div className='relative h-24 w-24 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg'>
-                <img 
-                  src={formData.profilePictureUrl || '/images/avatars/1.png'} 
-                  alt='Profile' 
-                  className='w-full h-full object-cover'
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/avatars/1.png'
-                  }}
-                />
+            <Grid item xs={12} className='flex flex-col gap-6 mbe-4'>
+              <div className='flex items-center gap-6'>
+                <div className='relative h-24 w-24 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg shrink-0'>
+                  <img 
+                    src={formData.profilePictureUrl || '/images/avatars/1.png'} 
+                    alt='Profile' 
+                    className='w-full h-full object-cover'
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/avatars/1.png'
+                    }}
+                  />
+                </div>
+                <div className='flex flex-col gap-1'>
+                  <Typography variant='h6' fontWeight='bold'>Profile Picture</Typography>
+                  <Typography variant='caption' color='text.secondary'>Upload a new avatar or enter a URL in the form below.</Typography>
+                </div>
               </div>
-              <div className='flex flex-col gap-1'>
-                <Typography variant='h6' fontWeight='bold'>Profile Picture</Typography>
-                <Typography variant='caption' color='text.secondary'>Provide a direct URL to your profile image.</Typography>
-              </div>
+              <ImageUploader 
+                onUploadSuccess={(url) => setFormData({ ...formData, profilePictureUrl: url })}
+              />
             </Grid>
 
             {/* Form Fields */}

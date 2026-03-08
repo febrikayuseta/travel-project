@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { toast } from 'react-toastify'
 import type { Banner, CreateBannerPayload } from '@/types/project-types'
+import ImageUploader from '@/components/ImageUploader'
 
 type BannerDialogProps = {
   open: boolean
@@ -112,6 +113,12 @@ const BannerDialog = ({ open, setOpen, data, onSuccess }: BannerDialogProps) => 
                 value={formData.imageUrl}
                 onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
                 required
+                helperText='Enter an image URL or upload one below'
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <ImageUploader 
+                onUploadSuccess={(url) => setFormData({ ...formData, imageUrl: url })} 
               />
             </Grid>
             {formData.imageUrl && (

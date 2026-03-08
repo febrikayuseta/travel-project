@@ -15,6 +15,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { toast } from 'react-toastify'
 import type { Activity, Category } from '@/types/project-types'
 import { parseApiData } from '@/utils/apiUtils'
+import ImageUploader from '@/components/ImageUploader'
 
 type ActivityDialogProps = {
   open: boolean
@@ -253,7 +254,7 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
             </Grid>
 
             <Grid item xs={12}>
-              <div className='flex gap-2 mb-4'>
+              <div className='flex gap-2 mb-2'>
                 <TextField
                   fullWidth
                   label='Add Image URL'
@@ -261,6 +262,15 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
                   onChange={e => setImageUrlInput(e.target.value)}
                 />
                 <Button variant='outlined' onClick={addImageUrl}>Add</Button>
+              </div>
+              <div className='mb-4'>
+                <ImageUploader 
+                  onUploadSuccess={(url) => {
+                    if (!formData.imageUrls.includes(url)) {
+                      setFormData({ ...formData, imageUrls: [...formData.imageUrls, url] })
+                    }
+                  }} 
+                />
               </div>
               <div className='flex gap-4 flex-wrap'>
                 {formData.imageUrls.map((url, idx) => (

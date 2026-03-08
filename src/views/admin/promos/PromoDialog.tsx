@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { toast } from 'react-toastify'
 import type { Promo, CreatePromoPayload } from '@/types/project-types'
+import ImageUploader from '@/components/ImageUploader'
 
 type PromoDialogProps = {
   open: boolean
@@ -143,6 +144,12 @@ const PromoDialog = ({ open, setOpen, data, onSuccess }: PromoDialogProps) => {
                 value={formData.imageUrl}
                 onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
                 required
+                helperText='Enter an image URL or upload one below'
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <ImageUploader 
+                onUploadSuccess={(url) => setFormData({ ...formData, imageUrl: url })} 
               />
             </Grid>
 
