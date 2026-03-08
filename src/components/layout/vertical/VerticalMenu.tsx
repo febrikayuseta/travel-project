@@ -86,6 +86,15 @@ const VerticalMenu = ({ dictionary, scrollMenu, role }: Props) => {
           <MenuItem href='/dashboard' icon={<i className='ri-home-smile-line' />}>
             Explore Activities
           </MenuItem>
+          <MenuItem href='/activities' icon={<i className='ri-map-pin-user-line' />}>
+            All Activities
+          </MenuItem>
+          <MenuItem href='/promos' icon={<i className='ri-discount-percent-line' />}>
+            All Promos
+          </MenuItem>
+          <MenuItem href='/banners' icon={<i className='ri-image-line' />}>
+            All Banners
+          </MenuItem>
           <MenuItem href='/cart' icon={<i className='ri-shopping-cart-2-line' />}>
             My Cart
           </MenuItem>

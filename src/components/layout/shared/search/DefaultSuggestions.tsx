@@ -22,102 +22,92 @@ type DefaultSuggestionsType = {
 
 const defaultSuggestions: DefaultSuggestionsType[] = [
   {
-    sectionLabel: 'Popular Searches',
+    sectionLabel: 'User Access',
     items: [
       {
-        label: 'Analytics',
+        label: 'Dashboard',
         href: '/dashboard',
-        icon: 'ri-bar-chart-line'
+        icon: 'ri-home-smile-line'
       },
       {
-        label: 'CRM',
-        href: '/dashboards/crm',
-        icon: 'ri-pie-chart-2-line'
+        label: 'Explore Activities',
+        href: '/activities',
+        icon: 'ri-map-pin-user-line'
       },
       {
-        label: 'eCommerce',
-        href: '/dashboards/ecommerce',
-        icon: 'ri-shopping-bag-3-line'
+        label: 'All Promos',
+        href: '/promos',
+        icon: 'ri-discount-percent-line'
       },
       {
-        label: 'User List',
-        href: '/apps/user/list',
-        icon: 'ri-file-user-line'
+        label: 'My Cart',
+        href: '/cart',
+        icon: 'ri-shopping-cart-2-line'
       }
     ]
   },
   {
-    sectionLabel: 'Apps',
+    sectionLabel: 'Admin Management',
     items: [
       {
-        label: 'Calendar',
-        href: '/apps/calendar',
-        icon: 'ri-calendar-line'
+        label: 'Manage Activities',
+        href: '/admin/activities',
+        icon: 'ri-map-2-line'
       },
       {
-        label: 'Invoice List',
-        href: '/apps/invoice/list',
-        icon: 'ri-file-list-3-line'
+        label: 'Manage Promos',
+        href: '/admin/promos',
+        icon: 'ri-discount-percent-line'
       },
       {
-        label: 'User List',
-        href: '/apps/user/list',
-        icon: 'ri-file-user-line'
+        label: 'Manage Banners',
+        href: '/admin/banners',
+        icon: 'ri-image-line'
       },
       {
-        label: 'Roles & Permissions',
-        href: '/apps/roles',
-        icon: 'ri-lock-unlock-line'
+        label: 'Manage Categories',
+        href: '/admin/categories',
+        icon: 'ri-grid-fill'
       }
     ]
   },
   {
-    sectionLabel: 'Pages',
+    sectionLabel: 'Account & Users',
     items: [
-      {
-        label: 'User Profile',
-        href: '/pages/user-profile',
-        icon: 'ri-user-3-line'
-      },
       {
         label: 'Account Settings',
-        href: '/pages/account-settings',
-        icon: 'ri-settings-4-line'
+        href: '/account',
+        icon: 'ri-user-settings-line'
       },
       {
-        label: 'Pricing',
-        href: '/pages/pricing',
-        icon: 'ri-money-dollar-circle-line'
+        label: 'User Management',
+        href: '/admin/users',
+        icon: 'ri-group-line'
       },
       {
-        label: 'FAQ',
-        href: '/pages/faq',
-        icon: 'ri-question-line'
+        label: 'Admin Dashboard',
+        href: '/admin',
+        icon: 'ri-dashboard-line'
       }
     ]
   },
   {
-    sectionLabel: 'Forms & Charts',
+    sectionLabel: 'Transactions',
     items: [
       {
-        label: 'Form Layouts',
-        href: '/forms/form-layouts',
-        icon: 'ri-file-text-line'
+        label: 'My Transactions',
+        href: '/transactions',
+        icon: 'ri-list-check'
       },
       {
-        label: 'Form Validation',
-        href: '/forms/form-validation',
-        icon: 'ri-checkbox-multiple-line'
+        label: 'All Transactions (Admin)',
+        href: '/admin/transactions',
+        icon: 'ri-bank-card-line'
       },
       {
-        label: 'Form Wizard',
-        href: '/forms/form-wizard',
-        icon: 'ri-equalizer-line'
-      },
-      {
-        label: 'Apex Charts',
-        href: '/charts/apex-charts',
-        icon: 'ri-line-chart-line'
+        label: 'Payment Methods',
+        href: '/admin/payment-methods',
+        icon: 'ri-secure-payment-line'
       }
     ]
   }

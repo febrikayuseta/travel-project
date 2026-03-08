@@ -43,6 +43,7 @@ const DashboardAnalytics = async () => {
     getPublicData<Activity>('/api/v1/activities')
   ])
 
+  console.log('activities', activities)
   return (
     <Grid container spacing={6}>
       {/* Hero Section */}
@@ -89,7 +90,12 @@ const DashboardAnalytics = async () => {
       <Grid item xs={12}>
         <div className='flex items-center justify-between mb-4'>
           <Typography variant='h4' fontWeight='bold'>Featured Banners</Typography>
-          <Chip label='Live API' variant='outlined' size='small' color='info' />
+          <div className='flex items-center gap-3'>
+            {/* <Chip label='Live API' variant='outlined' size='small' color='info' className='hidden sm:flex' /> */}
+            <Button component={Link} href='/banners' variant='outlined' color='primary' size='small'>
+              Show More
+            </Button>
+          </div>
         </div>
         <Grid container spacing={6}>
           {banners.slice(0, 3).map(banner => (
@@ -124,7 +130,12 @@ const DashboardAnalytics = async () => {
 
       {/* Best Promos */}
       <Grid item xs={12}>
-        <Typography variant='h4' fontWeight='bold' className='mb-4'>Best Promos</Typography>
+        <div className='flex items-center justify-between mb-4'>
+          <Typography variant='h4' fontWeight='bold'>Best Promos</Typography>
+          <Button component={Link} href='/promos' variant='outlined' color='primary' size='small'>
+            Show More
+          </Button>
+        </div>
         <Grid container spacing={6}>
           {promos.slice(0, 6).map(promo => (
             <Grid item xs={12} sm={6} md={4} key={promo.id}>
@@ -164,7 +175,12 @@ const DashboardAnalytics = async () => {
 
       {/* Popular Activities */}
       <Grid item xs={12}>
-        <Typography variant='h4' fontWeight='bold' className='mb-4'>Popular Activities</Typography>
+        <div className='flex items-center justify-between mb-4'>
+          <Typography variant='h4' fontWeight='bold'>Popular Activities</Typography>
+          <Button component={Link} href='/activities' variant='outlined' color='primary' size='small'>
+            Show More
+          </Button>
+        </div>
         <Grid container spacing={6}>
           {activities.slice(0, 6).map(activity => (
             <Grid item xs={12} sm={6} md={4} key={activity.id}>
@@ -189,9 +205,20 @@ const DashboardAnalytics = async () => {
                   <div className='mt-auto flex items-center justify-between pt-4 border-t border-divider'>
                     <div>
                       <Typography variant='caption' color='textSecondary' className='block'>Starting from</Typography>
-                      <Typography variant='h6' color='primary' fontWeight='900'>
-                        {formatRupiah(activity.price)}
-                      </Typography>
+                      {activity.price_discount && activity.price_discount < activity.price ? (
+                        <>
+                          <Typography variant='caption' className='line-through text-textDisabled'>
+                            {formatRupiah(activity.price)}
+                          </Typography>
+                          <Typography variant='h6' color='primary' fontWeight='900'>
+                            {formatRupiah(activity.price_discount)}
+                          </Typography>
+                        </>
+                      ) : (
+                        <Typography variant='h6' color='primary' fontWeight='900'>
+                          {formatRupiah(activity.price)}
+                        </Typography>
+                      )}
                     </div>
                     <Button
                       component={Link}
