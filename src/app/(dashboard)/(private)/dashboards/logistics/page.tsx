@@ -1,7 +1,7 @@
-import LogisticsDashboard from '../../apps/logistics/dashboard/page'
+import { redirect } from 'next/navigation'
 
 const DashboardLogistics = () => {
-  return <LogisticsDashboard />
+  redirect('/dashboard')
 }
 
 export default DashboardLogistics

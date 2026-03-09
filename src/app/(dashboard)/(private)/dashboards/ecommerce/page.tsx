@@ -1,7 +1,7 @@
-import EcommerceDashboard from '../../apps/ecommerce/dashboard/page'
+import { redirect } from 'next/navigation'
 
 const DashboardECommerce = () => {
-  return <EcommerceDashboard />
+  redirect('/dashboard')
 }
 
 export default DashboardECommerce

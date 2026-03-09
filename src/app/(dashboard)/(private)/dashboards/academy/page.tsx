@@ -1,8 +1,7 @@
-// Component Imports
-import AcademyDashboard from '../../apps/academy/dashboard/page'
+import { redirect } from 'next/navigation'
 
-const DashboardAcademy = async () => {
-  return <AcademyDashboard />
+const DashboardAcademy = () => {
+  redirect('/dashboard')
 }
 
 export default DashboardAcademy
