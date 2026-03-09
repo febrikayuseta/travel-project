@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 
 // Component Imports
 import VerifyEmail from '@views/VerifyEmail'
+import FallbackSpinner from '@components/FallbackSpinner'
 
 // Server Action Imports
 import { getServerMode } from '@core/utils/serverHelpers'
@@ -18,7 +19,7 @@ const VerifyEmailPage = () => {
   const mode = getServerMode()
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<FallbackSpinner />}>
       <VerifyEmail mode={mode} />
     </Suspense>
   )

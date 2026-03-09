@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 
 // Component Imports
 import Login from '@views/Login'
+import FallbackSpinner from '@components/FallbackSpinner'
 
 // Server Action Imports
 import { getServerMode } from '@core/utils/serverHelpers'
@@ -18,7 +19,7 @@ const LoginPage = () => {
   const mode = getServerMode()
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<FallbackSpinner />}>
       <Login mode={mode} />
     </Suspense>
   )
