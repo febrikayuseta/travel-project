@@ -60,6 +60,14 @@ const AccountDetails = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Client-side validation — all fields are required by the API
+    const { name, email, profilePictureUrl, phoneNumber } = formData
+    if (!name.trim() || !email.trim() || !profilePictureUrl.trim() || !phoneNumber.trim()) {
+      toast.error('All fields are required. Please fill in every field.')
+      return
+    }
+
     setSaving(true)
     try {
       const res = await fetch('/api/proxy/update-profile', {
@@ -72,7 +80,14 @@ const AccountDetails = () => {
         toast.success('Profile updated successfully!')
         fetchUser()
       } else {
-        toast.error(json.message || 'Failed to update profile')
+        // Handle field-level validation errors from the API
+        if (json.errors && Array.isArray(json.errors)) {
+          json.errors.forEach((err: { message?: string }) => {
+            toast.error(err.message || 'Validation error')
+          })
+        } else {
+          toast.error(json.message || 'Failed to update profile')
+        }
       }
     } catch (error) {
       toast.error('An error occurred while updating profile')
@@ -155,6 +170,7 @@ const AccountDetails = () => {
                 placeholder='https://example.com/photo.jpg'
                 value={formData.profilePictureUrl}
                 onChange={e => setFormData({ ...formData, profilePictureUrl: e.target.value })}
+                required
                 variant='outlined'
               />
             </Grid>
@@ -165,6 +181,7 @@ const AccountDetails = () => {
                 placeholder='+62 812 3456 7890'
                 value={formData.phoneNumber}
                 onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
+                required
                 variant='outlined'
               />
             </Grid>
