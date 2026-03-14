@@ -13,6 +13,10 @@ import CircularProgress from '@mui/material/CircularProgress'
 import TablePagination from '@mui/material/TablePagination'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import InputLabel from '@mui/material/InputLabel'
 
 // Component Imports
 import ServerSafeImage from '@/components/dashboard/ServerSafeImage'
@@ -29,6 +33,7 @@ export default function ActivitiesPage() {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(6)
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState('default')
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -47,47 +52,84 @@ export default function ActivitiesPage() {
     fetchActivities()
   }, [])
 
-  const filteredData = data.filter(activity => {
-    const search = searchTerm.toLowerCase()
-    return (
-      (activity.title?.toLowerCase().includes(search) ?? false) ||
-      (activity.city?.toLowerCase().includes(search) ?? false) ||
-      (activity.province?.toLowerCase().includes(search) ?? false)
-    )
-  })
+  const sortedAndFilteredData = data
+    .filter(activity => {
+      const search = searchTerm.toLowerCase()
+      return (
+        (activity.title?.toLowerCase().includes(search) ?? false) ||
+        (activity.city?.toLowerCase().includes(search) ?? false) ||
+        (activity.province?.toLowerCase().includes(search) ?? false)
+      )
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price-low') {
+        const priceA = a.price_discount || a.price
+        const priceB = b.price_discount || b.price
+        return priceA - priceB
+      }
+      if (sortBy === 'price-high') {
+        const priceA = a.price_discount || a.price
+        const priceB = b.price_discount || b.price
+        return priceB - priceA
+      }
+      if (sortBy === 'rating') {
+        return (b.rating || 0) - (a.rating || 0)
+      }
+      return 0
+    })
 
   // Pagination calculation
-  const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  const paginatedData = sortedAndFilteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Typography variant='h4' fontWeight='bold' className='mb-6'>All Activities</Typography>
-        <div className='mb-6 max-w-sm'>
-          <TextField
-            fullWidth
-            size='small'
-            placeholder='Search destinations or activities...'
-            value={searchTerm}
-            onChange={e => {
-              setSearchTerm(e.target.value)
-              setPage(0)
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <i className='ri-search-line' />
-                </InputAdornment>
-              )
-            }}
-          />
+        <div className='mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between'>
+          <div className='w-full max-w-sm'>
+            <TextField
+              fullWidth
+              size='small'
+              placeholder='Search destinations or activities...'
+              value={searchTerm}
+              onChange={e => {
+                setSearchTerm(e.target.value)
+                setPage(0)
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <i className='ri-search-line' />
+                  </InputAdornment>
+                )
+              }}
+            />
+          </div>
+
+          <FormControl size='small' className='min-w-[200px] w-full sm:w-auto'>
+            <InputLabel id='sort-by-label'>Sort By</InputLabel>
+            <Select
+              labelId='sort-by-label'
+              value={sortBy}
+              label='Sort By'
+              onChange={e => {
+                setSortBy(e.target.value)
+                setPage(0)
+              }}
+            >
+              <MenuItem value='default'>Default</MenuItem>
+              <MenuItem value='price-low'>Price: Low to High</MenuItem>
+              <MenuItem value='price-high'>Price: High to Low</MenuItem>
+              <MenuItem value='rating'>Top Rated</MenuItem>
+            </Select>
+          </FormControl>
         </div>
 
         {loading ? (
           <div className='flex justify-center py-20'>
             <CircularProgress />
           </div>
-        ) : filteredData.length === 0 ? (
+        ) : sortedAndFilteredData.length === 0 ? (
           <div className='text-center py-20'>
             <Typography variant='h6' color='textSecondary'>No activities found.</Typography>
           </div>
@@ -149,7 +191,7 @@ export default function ActivitiesPage() {
             <div className='mt-8 flex justify-end'>
               <TablePagination
                 component='div'
-                count={filteredData.length}
+                count={sortedAndFilteredData.length}
                 page={page}
                 onPageChange={(_, newPage) => setPage(newPage)}
                 rowsPerPage={rowsPerPage}

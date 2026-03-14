@@ -95,7 +95,7 @@ export default function BannersPage() {
             <Grid container spacing={6}>
               {paginatedData.map(banner => (
                 <Grid item xs={12} sm={6} md={4} key={banner.id}>
-                  <Card className='group hover:shadow-2xl transition-all duration-300 rounded-3xl overflow-hidden h-full'>
+                  <Card className='group hover:shadow-2xl transition-all duration-300 rounded-3xl overflow-hidden h-full flex flex-col'>
                     <ServerSafeImage 
                       src={banner.imageUrl} 
                       alt={banner.name} 
@@ -103,11 +103,11 @@ export default function BannersPage() {
                     >
                       <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity' />
                     </ServerSafeImage>
-                    <CardContent className='p-6 flex flex-col'>
+                    <CardContent className='p-6 flex flex-col mt-auto'>
                       <Typography variant='h6' fontWeight='bold' className='line-clamp-1 mb-3'>
                         {banner.name}
                       </Typography>
-                      <div className='mt-auto'>
+                      <div>
                         <Button
                           component={Link}
                           href={`/banners/${banner.id}`}

@@ -111,6 +111,7 @@ export type Transaction = {
   proofPaymentUrl?: string
   paymentMethodId?: string
   paymentMethod?: PaymentMethod
+  payment_method?: PaymentMethod
   status: TransactionStatus
   createdAt?: string
   updatedAt?: string

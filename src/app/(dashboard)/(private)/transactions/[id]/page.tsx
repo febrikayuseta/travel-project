@@ -103,6 +103,9 @@ const TransactionDetailsPage = () => {
         if (url) {
           setProofUrl(url)
           toast.success('Image uploaded successfully!')
+          
+          // Automatically submit the proof to the transaction
+          await submitProof(url)
         } else {
           toast.error('Upload successful but no URL returned from server')
         }
@@ -116,27 +119,31 @@ const TransactionDetailsPage = () => {
     }
   }
 
-  const handleUpdateProof = async () => {
-    if (!id || !proofUrl) return
+  const submitProof = async (url: string) => {
+    if (!id || !url) return
     setUpdatingProof(true)
     try {
       const res = await fetch(`/api/proxy/update-transaction-proof-payment/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ proofPaymentUrl: proofUrl })
+        body: JSON.stringify({ proofPaymentUrl: url })
       })
       const json = await res.json()
       if (res.ok) {
-        toast.success('Payment proof updated!')
+        toast.success('Payment proof submitted successfully!')
         fetchTransaction()
       } else {
-        toast.error(json.message || 'Failed to update payment proof')
+        toast.error(json.message || 'Failed to submit payment proof')
       }
     } catch (error) {
-      toast.error('An error occurred while updating the proof')
+      toast.error('An error occurred while submitting the proof')
     } finally {
       setUpdatingProof(false)
     }
+  }
+
+  const handleUpdateProof = async () => {
+    submitProof(proofUrl)
   }
 
   const getStatusColor = (status: string) => {
@@ -187,11 +194,14 @@ const TransactionDetailsPage = () => {
             <Card>
               <CardHeader title='Activities Summary' className='bg-actionHover p-4' />
               <CardContent className='p-0'>
-                {transaction.carts?.map((cart, idx) => {
-                  const activity = cart.activity
-                  const price = activity?.price_discount || activity?.price || 0
+                {(transaction.transaction_items || transaction.carts || []).map((item, idx) => {
+                  const activity = (item as any).activity || item
+                  const price = (item as any).price || activity?.price_discount || activity?.price || 0
+                  const quantity = (item as any).quantity || 1
+                  const totalItems = (transaction.transaction_items?.length || transaction.carts?.length || 0)
+                  
                   return (
-                    <Box key={cart.id} p={4} display='flex' gap={4} alignItems='center' borderBottom={idx < (transaction.carts?.length || 0) - 1 ? 1 : 0} borderColor='divider'>
+                    <Box key={item.id} p={4} display='flex' gap={4} alignItems='center' borderBottom={idx < totalItems - 1 ? 1 : 0} borderColor='divider'>
                       {activity?.imageUrls?.[0] ? (
                         <img src={activity.imageUrls[0]} alt={activity.title} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
                       ) : (
@@ -201,10 +211,10 @@ const TransactionDetailsPage = () => {
                       )}
                       <Box flexGrow={1}>
                         <Typography variant='h6' fontWeight='bold'>{activity?.title || 'Unknown Activity'}</Typography>
-                        <Typography variant='body2' color='text.secondary'>{cart.quantity} x {formatRupiah(price)}</Typography>
+                        <Typography variant='body2' color='text.secondary'>{quantity} x {formatRupiah(price)}</Typography>
                       </Box>
                       <Typography variant='h6' fontWeight='bold' color='primary'>
-                        {formatRupiah(price * cart.quantity)}
+                        {formatRupiah(price * quantity)}
                       </Typography>
                     </Box>
                   )
@@ -217,9 +227,24 @@ const TransactionDetailsPage = () => {
               <CardContent className='p-6 flex flex-col gap-6'>
                 {transaction.status === 'pending' ? (
                   <>
-                    <Alert severity='info' icon={<i className='ri-information-line' />}>
-                      Please upload your payment receipt to complete your booking.
-                    </Alert>
+                    {transaction.proofPaymentUrl ? (
+                      <Alert 
+                        severity='info' 
+                        icon={<i className='ri-time-line' />}
+                        action={
+                          <Button color='inherit' size='small' onClick={() => setProofUrl('')}>
+                            Re-upload
+                          </Button>
+                        }
+                      >
+                        <Typography fontWeight='bold'>Payment proof received!</Typography>
+                        Your payment is currently being verified by our team. You can still update it if needed.
+                      </Alert>
+                    ) : (
+                      <Alert severity='info' icon={<i className='ri-information-line' />}>
+                        Please upload your payment receipt to complete your booking.
+                      </Alert>
+                    )}
                     
                     <Box display='flex' flexDirection='column' gap={4}>
                       <Box border='1px dashed' borderColor='divider' borderRadius={2} p={6} textAlign='center'>
@@ -310,7 +335,7 @@ const TransactionDetailsPage = () => {
                 </Box>
                 <Box display='flex' justifyContent='space-between'>
                   <Typography color='text.secondary'>Payment Method</Typography>
-                  <Typography fontWeight='bold'>{transaction.paymentMethod?.name || 'Manual Transfer'}</Typography>
+                  <Typography fontWeight='bold'>{transaction.paymentMethod?.name || transaction.payment_method?.name || 'Manual Transfer'}</Typography>
                 </Box>
                 <Divider />
                 <Box display='flex' justifyContent='space-between' alignItems='center' py={2}>

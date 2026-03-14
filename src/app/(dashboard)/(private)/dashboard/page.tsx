@@ -100,7 +100,7 @@ const DashboardAnalytics = async () => {
         <Grid container spacing={6}>
           {banners.slice(0, 3).map(banner => (
             <Grid item xs={12} sm={6} md={4} key={banner.id}>
-              <Card className='group hover:shadow-2xl transition-all duration-300 rounded-3xl overflow-hidden h-full'>
+              <Card className='group hover:shadow-2xl transition-all duration-300 rounded-3xl overflow-hidden h-full flex flex-col'>
                 <ServerSafeImage 
                   src={banner.imageUrl} 
                   alt={banner.name} 
@@ -108,15 +108,15 @@ const DashboardAnalytics = async () => {
                 >
                   <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity' />
                 </ServerSafeImage>
-                <CardContent className='p-6'>
-                  <Typography variant='h6' fontWeight='bold' className='line-clamp-1'>
+                <CardContent className='p-6 mt-auto'>
+                  <Typography variant='h6' fontWeight='bold' className='line-clamp-1 mb-3'>
                     {banner.name}
                   </Typography>
                   <Button
                     component={Link}
                     href={`/banners/${banner.id}`}
                     size='small'
-                    className='mt-3 normal-case'
+                    className='normal-case'
                     color='info'
                   >
                     View Details
