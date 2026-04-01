@@ -3,7 +3,6 @@ import { useParams } from 'next/navigation'
 
 // MUI Imports
 import { useTheme } from '@mui/material/styles'
-import Chip from '@mui/material/Chip'
 
 // Third-party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -13,9 +12,8 @@ import type { getDictionary } from '@/utils/getDictionary'
 import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
 // Component Imports
-import { Menu, SubMenu, MenuItem, MenuSection } from '@menu/vertical-menu'
-
-// import { GenerateVerticalMenu } from '@components/GenerateMenu'
+import { Menu } from '@menu/vertical-menu'
+import { GenerateVerticalMenu } from '@components/GenerateMenu'
 
 // Hook Imports
 import useVerticalNav from '@menu/hooks/useVerticalNav'
@@ -28,7 +26,7 @@ import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
 
 // Menu Data Imports
-// import menuData from '@/data/navigation/verticalMenuData'
+import menuData from '@/data/navigation/verticalMenuData'
 
 type RenderExpandIconProps = {
   open?: boolean
@@ -55,7 +53,6 @@ const VerticalMenu = ({ dictionary, scrollMenu, role }: Props) => {
 
   // Vars
   const { isBreakpointReached, transitionDuration } = verticalNavOptions
-  const { lang: locale } = params
 
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
@@ -82,68 +79,8 @@ const VerticalMenu = ({ dictionary, scrollMenu, role }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='ri-circle-fill' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <MenuSection label='User Access'>
-          <MenuItem href='/dashboard' icon={<i className='ri-home-smile-line' />}>
-            Explore Activities
-          </MenuItem>
-          <MenuItem href='/activities' icon={<i className='ri-map-pin-user-line' />}>
-            All Activities
-          </MenuItem>
-          <MenuItem href='/promos' icon={<i className='ri-discount-percent-line' />}>
-            All Promos
-          </MenuItem>
-          <MenuItem href='/banners' icon={<i className='ri-image-line' />}>
-            All Banners
-          </MenuItem>
-          <MenuItem href='/cart' icon={<i className='ri-shopping-cart-2-line' />}>
-            My Cart
-          </MenuItem>
-          <MenuItem href='/transactions' icon={<i className='ri-list-check' />}>
-            My Transactions
-          </MenuItem>
-          <MenuItem href='/account' icon={<i className='ri-user-settings-line' />}>
-            Account Settings
-          </MenuItem>
-        </MenuSection>
-
-        {role === 'admin' && (
-          <MenuSection label='Admin Control Panel'>
-            <MenuItem href='/admin' icon={<i className='ri-dashboard-line' />}>
-              Admin Dashboard
-            </MenuItem>
-            <MenuItem href='/admin/activities' icon={<i className='ri-map-2-line' />}>
-              Activities
-            </MenuItem>
-            <MenuItem href='/admin/categories' icon={<i className='ri-grid-fill' />}>
-              Categories
-            </MenuItem>
-            <MenuItem href='/admin/promos' icon={<i className='ri-discount-percent-line' />}>
-              Promos
-            </MenuItem>
-            <MenuItem href='/admin/banners' icon={<i className='ri-image-line' />}>
-              Banners
-            </MenuItem>
-            <MenuItem href='/admin/transactions' icon={<i className='ri-bank-card-line' />}>
-              User Transactions
-            </MenuItem>
-            <MenuItem href='/admin/payment-methods' icon={<i className='ri-secure-payment-line' />}>
-              Payment Methods
-            </MenuItem>
-            <MenuItem href='/admin/users' icon={<i className='ri-group-line' />}>
-              User Management
-            </MenuItem>
-          </MenuSection>
-        )}
+        <GenerateVerticalMenu menuData={menuData(dictionary)} />
       </Menu>
-      {/* <Menu
-        popoutMenuOffset={{ mainAxis: 17 }}
-        menuItemStyles={menuItemStyles(verticalNavOptions, theme)}
-        renderExpandIcon={({ open }) => <RenderExpandIcon open={open} transitionDuration={transitionDuration} />}
-        renderExpandedMenuItemIcon={{ icon: <i className='ri-circle-fill' /> }}
-        menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
-      >
-        <GenerateVerticalMenu menuData={menuData(dictionary, params)} />
-      </Menu> */}
     </ScrollWrapper>
   )
 }

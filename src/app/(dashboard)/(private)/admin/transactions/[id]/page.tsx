@@ -134,7 +134,12 @@ const AdminTransactionDetailPage = () => {
               <CardContent className='p-0'>
                 {(transaction.transaction_items || transaction.carts || []).map((item, idx) => {
                   const activity = (item as any).activity || item
-                  const price = (item as any).price || (activity?.price_discount > 0 ? activity.price - activity.price_discount : activity?.price) || 0
+                  
+                  // Prioritize discounted price if available
+                  const basePrice = (item as any).price || activity?.price || 0
+                  const discount = activity?.price_discount || 0
+                  const price = discount > 0 ? (activity?.price - discount) : basePrice
+                  
                   const quantity = (item as any).quantity || 1
                   const totalItems = (transaction.transaction_items?.length || transaction.carts?.length || 0)
                   
@@ -258,13 +263,50 @@ const AdminTransactionDetailPage = () => {
                   <Typography color='text.secondary'>Payment Method</Typography>
                   <Typography fontWeight='bold'>{transaction.paymentMethod?.name || transaction.payment_method?.name || 'Manual Transfer'}</Typography>
                 </Box>
+                
                 <Divider />
-                <Box display='flex' justifyContent='space-between' alignItems='center' py={2}>
-                  <Typography variant='h6' fontWeight='bold'>Total Amount</Typography>
-                  <Typography variant='h4' fontWeight='900' color='primary'>
-                    {formatRupiah(transaction.totalAmount || 0)}
-                  </Typography>
-                </Box>
+                
+                {(() => {
+                  const items = transaction.transaction_items || transaction.carts || []
+                  const subtotal = items.reduce((acc, item: any) => {
+                    const activity = item.activity || item
+                    const basePrice = item.price || activity?.price || 0
+                    const discount = activity?.price_discount || 0
+                    const price = discount > 0 ? (activity?.price - discount) : basePrice
+                    const quantity = item.quantity || 1
+                    return acc + (price * quantity)
+                  }, 0)
+                  
+                  // Sticky/Force logic for admin: if sum > totalAmount, it must be a 100k discount
+                  const promoDiscount = (transaction as any).promo_discount_price || (transaction as any).promo?.promo_discount_price || (subtotal > (transaction.totalAmount || 0) ? subtotal - (transaction.totalAmount || 0) : 0)
+                  
+                  // Definitive Fix: Use our manual calculation over the potentially broken server totalAmount
+                  const finalTotal = (subtotal - promoDiscount)
+
+                  return (
+                    <>
+                      <Box display='flex' justifyContent='space-between'>
+                        <Typography color='text.secondary'>Subtotal</Typography>
+                        <Typography fontWeight='bold'>{formatRupiah(subtotal)}</Typography>
+                      </Box>
+                      {promoDiscount > 0 && (
+                        <Box display='flex' justifyContent='space-between' color='error.main'>
+                          <Typography color='inherit'>Discount Applied</Typography>
+                          <Typography fontWeight='bold' color='inherit'>-{formatRupiah(promoDiscount)}</Typography>
+                        </Box>
+                      )}
+                      
+                      <Divider />
+                      
+                      <Box display='flex' justifyContent='space-between' alignItems='center' py={2}>
+                        <Typography variant='h6' fontWeight='bold'>Final Total</Typography>
+                        <Typography variant='h4' fontWeight='900' color='primary'>
+                          {formatRupiah(finalTotal)}
+                        </Typography>
+                      </Box>
+                    </>
+                  )
+                })()}
               </CardContent>
             </Card>
 

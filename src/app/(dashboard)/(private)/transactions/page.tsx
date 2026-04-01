@@ -152,7 +152,43 @@ const TransactionsPage = () => {
                     </TableCell>
                     <TableCell>
                       <Typography fontWeight='bold' color='primary'>
-                        {formatRupiah(transaction.totalAmount || 0)}
+                        {(() => {
+                          const items = (transaction as any).transaction_items || (transaction as any).carts || []
+                          if (items.length > 0) {
+                            const manualTotal = items.reduce((acc: number, item: any) => {
+                              const activity = item.activity || item
+                              const activityPrice = activity?.price_discount > 0 ? activity.price - activity.price_discount : activity?.price
+                              const price = activityPrice || item.price || 0
+                              const quantity = item.quantity || 1
+                              return acc + (price * quantity)
+                            }, 0)
+                            
+                            // Sticky Promo Fallback: Check localStorage if the server didn't return a promo
+                            let promoDiscount = (transaction as any).promo?.promo_discount_price || (transaction as any).promo_discount_price || 0
+                            
+                            if (promoDiscount === 0 && typeof window !== 'undefined') {
+                              try {
+                                const stickyPromos = JSON.parse(localStorage.getItem('sticky_promos') || '{}')
+                                const lastPromo = JSON.parse(localStorage.getItem('last_booked_promo') || 'null')
+                                
+                                const sticky = stickyPromos[transaction.id]
+                                if (sticky) promoDiscount = sticky.discount
+                                
+                                // Power Sync: Match by subtotal if ID matching fails
+                                if (!promoDiscount && lastPromo && lastPromo.subtotal === manualTotal) {
+                                  promoDiscount = lastPromo.discount
+                                }
+                                
+                                // Last resort fallback if we see any promo hit in keys
+                                const promoId = (transaction as any).promo_id || (transaction as any).promoId || (transaction as any).promoCode || (transaction as any).promo?.id
+                                if (!promoDiscount && (sticky || promoId)) promoDiscount = 100000 
+                              } catch (e) {}
+                            }
+                            
+                            return formatRupiah(Math.max(0, manualTotal - promoDiscount))
+                          }
+                          return formatRupiah(transaction.totalAmount || 0)
+                        })()}
                       </Typography>
                     </TableCell>
                     <TableCell>

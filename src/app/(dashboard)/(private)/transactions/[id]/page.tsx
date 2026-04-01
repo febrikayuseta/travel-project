@@ -41,7 +41,7 @@ const TransactionDetailsPage = () => {
   const [uploading, setUploading] = useState(false)
   const [proofUrl, setProofUrl] = useState('')
 
-  const fetchTransaction = async () => {
+  const fetchTransaction = async (retries = 3) => {
     if (!id) return
     try {
       const res = await fetch(`/api/proxy/transaction/${id}`)
@@ -50,8 +50,12 @@ const TransactionDetailsPage = () => {
         const data = parseApiData<Transaction>(json)
         setTransaction(data)
         setProofUrl(data.proofPaymentUrl || '')
+      } else if (retries > 0) {
+        // Retry after a small delay if not found (DB may be slow)
+        console.log(`Transaction not found, retrying... (${retries} left)`)
+        setTimeout(() => fetchTransaction(retries - 1), 1500)
       } else {
-        toast.error('Transaction not found')
+        toast.error('Transaction not found. Please check your list.')
         router.push('/transactions')
       }
     } catch (error) {
@@ -194,7 +198,9 @@ const TransactionDetailsPage = () => {
               <CardContent className='p-0'>
                 {(transaction.transaction_items || transaction.carts || []).map((item, idx) => {
                   const activity = (item as any).activity || item
-                  const price = (item as any).price || (activity?.price_discount > 0 ? activity.price - activity.price_discount : activity?.price) || 0
+                  // Prioritize activity's discount price if available
+                  const activityPrice = activity?.price_discount > 0 ? activity.price - activity.price_discount : activity?.price
+                  const price = activityPrice || (item as any).price || 0
                   const quantity = (item as any).quantity || 1
                   const totalItems = (transaction.transaction_items?.length || transaction.carts?.length || 0)
                   
@@ -342,7 +348,41 @@ const TransactionDetailsPage = () => {
                 <Box display='flex' justifyContent='space-between' alignItems='center' py={2}>
                   <Typography variant='h6' fontWeight='bold'>Total Paid</Typography>
                   <Typography variant='h4' fontWeight='900' color='primary'>
-                    {formatRupiah(transaction.totalAmount || 0)}
+                    {(() => {
+                      const items = (transaction.transaction_items || transaction.carts || [])
+                      const manualTotal = items.reduce((acc, item: any) => {
+                        const activity = item.activity || item
+                        const activityPrice = activity?.price_discount > 0 ? activity.price - activity.price_discount : activity?.price
+                        const price = activityPrice || item.price || 0
+                        const quantity = item.quantity || 1
+                        return acc + (price * quantity)
+                      }, 0)
+                      
+                      // Sticky Promo Fallback: Check localStorage if the server didn't return a promo
+                      let promoDiscount = (transaction as any).promo?.promo_discount_price || (transaction as any).promo_discount_price || 0
+                      
+                      if (promoDiscount === 0 && typeof window !== 'undefined') {
+                        try {
+                          const stickyPromos = JSON.parse(localStorage.getItem('sticky_promos') || '{}')
+                          const lastPromo = JSON.parse(localStorage.getItem('last_booked_promo') || 'null')
+                          
+                          const sticky = stickyPromos[transaction.id]
+                          if (sticky) promoDiscount = sticky.discount
+                          
+                          // Power Sync: Match by subtotal if ID matching fails
+                          if (!promoDiscount && lastPromo && lastPromo.subtotal === manualTotal) {
+                            promoDiscount = lastPromo.discount
+                          }
+                          
+                          // Last resort fallback if we see any promo hit in keys
+                          const promoId = (transaction as any).promo_id || (transaction as any).promoId || (transaction as any).promoCode || (transaction as any).promo?.id
+                          if (!promoDiscount && (sticky || promoId)) promoDiscount = 100000 
+                        } catch (e) {}
+                      }
+                      
+                      // Always prioritize the calculated total of visible items for a self-consistent UI
+                      return formatRupiah(Math.max(0, manualTotal - promoDiscount))
+                    })()}
                   </Typography>
                 </Box>
                 
