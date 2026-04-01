@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -13,10 +13,8 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import TextField from '@mui/material/TextField'
 import LoadingButton from '@mui/lab/LoadingButton'
-import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -42,31 +40,6 @@ const TransactionDetailsPage = () => {
   const [updatingProof, setUpdatingProof] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [proofUrl, setProofUrl] = useState('')
-  const [role, setRole] = useState('user')
-  const [updatingStatus, setUpdatingStatus] = useState(false)
-
-  const handleUpdateStatus = async (status: 'success' | 'failed') => {
-    if (!id) return
-    setUpdatingStatus(true)
-    try {
-      const res = await fetch(`/api/proxy/update-transaction-status/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      })
-      const json = await res.json()
-      if (res.ok) {
-        toast.success(`Transaction ${status === 'success' ? 'Approved' : 'Rejected'} successfully!`)
-        fetchTransaction()
-      } else {
-        toast.error(json.message || 'Failed to update status')
-      }
-    } catch (error) {
-      toast.error('An error occurred during update')
-    } finally {
-      setUpdatingStatus(false)
-    }
-  }
 
   const fetchTransaction = async () => {
     if (!id) return
@@ -90,16 +63,6 @@ const TransactionDetailsPage = () => {
   }
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('/api/proxy/user')
-        const json = await res.json()
-        if (res.ok) {
-          setRole(json.data?.role || 'user')
-        }
-      } catch (e) {}
-    }
-    fetchUser()
     fetchTransaction()
   }, [id])
 
