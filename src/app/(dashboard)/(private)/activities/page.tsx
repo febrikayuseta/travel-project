@@ -63,13 +63,13 @@ export default function ActivitiesPage() {
     })
     .sort((a, b) => {
       if (sortBy === 'price-low') {
-        const priceA = a.price_discount || a.price
-        const priceB = b.price_discount || b.price
+        const priceA = a.price_discount > 0 ? a.price - a.price_discount : a.price
+        const priceB = b.price_discount > 0 ? b.price - b.price_discount : b.price
         return priceA - priceB
       }
       if (sortBy === 'price-high') {
-        const priceA = a.price_discount || a.price
-        const priceB = b.price_discount || b.price
+        const priceA = a.price_discount > 0 ? a.price - a.price_discount : a.price
+        const priceB = b.price_discount > 0 ? b.price - b.price_discount : b.price
         return priceB - priceA
       }
       if (sortBy === 'rating') {
@@ -159,13 +159,13 @@ export default function ActivitiesPage() {
                       <div className='mt-auto flex items-center justify-between pt-4 border-t border-divider'>
                         <div>
                           <Typography variant='caption' color='textSecondary' className='block'>Starting from</Typography>
-                          {activity.price_discount && activity.price_discount < activity.price ? (
+                          {activity.price_discount > 0 ? (
                             <>
                               <Typography variant='caption' className='line-through text-textDisabled'>
                                 {formatRupiah(activity.price)}
                               </Typography>
                               <Typography variant='h6' color='primary' fontWeight='900'>
-                                {formatRupiah(activity.price_discount)}
+                                {formatRupiah(activity.price - activity.price_discount)}
                               </Typography>
                             </>
                           ) : (

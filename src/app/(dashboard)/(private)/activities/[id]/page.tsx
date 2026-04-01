@@ -98,10 +98,46 @@ const ActivityDetailPage = async ({ params }: { params: { id: string } }) => {
             />
 
             <Typography variant='h5' fontWeight='bold' className='mb-4'>Location</Typography>
-            <div 
-              className='rounded-2xl overflow-hidden grayscale hover:grayscale-0 transition-all duration-500 shadow-md'
-              dangerouslySetInnerHTML={{ __html: activity.location_maps }} 
-            />
+            {activity.location_maps || activity.address ? (
+              <div className='rounded-2xl overflow-hidden grayscale hover:grayscale-0 transition-all duration-500 shadow-md bs-[400px] bg-actionHover relative'>
+                {(() => {
+                  const mapInput = activity.location_maps || ''
+                  const isShortened = mapInput.includes('goo.gl') || mapInput.includes('maps.app.goo.gl')
+                  const isPlaceOrSearch = (mapInput.includes('google.com/maps/place/') || mapInput.includes('google.com/maps/search/')) && !mapInput.includes('embed')
+                  const isUnembeddable = isShortened || isPlaceOrSearch
+                  const hasMaps = mapInput.length > 0 && !isUnembeddable
+                  
+                  return hasMaps && mapInput.includes('<iframe') ? (
+                    <div 
+                      className='bs-full is-full [&>iframe]:bs-full [&>iframe]:is-full [&>iframe]:border-0'
+                      dangerouslySetInnerHTML={{ __html: mapInput }} 
+                    />
+                  ) : (
+                    <iframe
+                      title='Location Map'
+                      src={
+                        hasMaps
+                          ? (mapInput.includes('google.com/maps') && !mapInput.includes('embed') 
+                              ? `${mapInput}&output=embed` 
+                              : mapInput)
+                          : `https://maps.google.com/maps?q=${encodeURIComponent((activity.address || activity.title) + ', ' + (activity.city || ''))}&output=embed`
+                      }
+                      className='bs-full is-full border-0'
+                      allowFullScreen
+                      loading='lazy'
+                    />
+                  )
+                })()}
+              </div>
+            ) : (
+              <div className='bg-actionHover p-12 rounded-2xl text-center flex flex-col items-center gap-4'>
+                <i className='ri-map-pin-line text-4xl opacity-20' />
+                <Typography color='textDisabled'>Location coordinates not available for this activity.</Typography>
+              </div>
+            )}
+            <Typography variant='body2' className='mt-4 flex items-center gap-2' color='textSecondary'>
+              <i className='ri-map-pin-2-line' /> {activity.address}, {activity.city}, {activity.province}
+            </Typography>
           </CardContent>
         </Card>
       </Grid>

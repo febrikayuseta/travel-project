@@ -188,7 +188,7 @@ const CartPage = () => {
 
   const totalItems = carts.reduce((acc, cart) => acc + cart.quantity, 0)
   const totalPrice = carts.reduce((acc, cart) => {
-    const price = cart.activity?.price_discount || cart.activity?.price || 0
+    const price = cart.activity ? (cart.activity.price_discount > 0 ? cart.activity.price - cart.activity.price_discount : cart.activity.price) : 0
     return acc + price * cart.quantity
   }, 0)
   const finalTotal = Math.max(0, totalPrice - discount)
@@ -239,7 +239,7 @@ const CartPage = () => {
         <Grid item xs={12} lg={8}>
           <div className='flex flex-col gap-4'>
             {carts.map(cart => {
-              const price = cart.activity?.price_discount || cart.activity?.price || 0
+              const price = cart.activity ? (cart.activity.price_discount > 0 ? cart.activity.price - cart.activity.price_discount : cart.activity.price) : 0
               return (
                 <Card key={cart.id}>
                   <CardContent className='flex flex-col sm:flex-row items-center gap-6'>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -150,7 +151,13 @@ const TransactionListTable = () => {
                     />
                   </td>
                   <td className='p-4 text-right'>
-                     <IconButton size='small' color='secondary' className='bg-secondary/10'>
+                     <IconButton 
+                       size='small' 
+                       color='secondary' 
+                       className='bg-secondary/10' 
+                       component={Link} 
+                       href={`/admin/transactions/${tx.id}`}
+                     >
                        <i className='ri-eye-line' />
                      </IconButton>
                   </td>

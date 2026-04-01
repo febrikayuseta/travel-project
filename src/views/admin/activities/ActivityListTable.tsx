@@ -203,7 +203,7 @@ const ActivityListTable = () => {
                   <td className='p-4 text-center'>
                     <div className='flex flex-col'>
                       <Typography fontWeight='900' color='primary'>
-                        {formatRupiah(activity.price_discount || activity.price)}
+                        {formatRupiah(activity.price_discount > 0 ? activity.price - activity.price_discount : activity.price)}
                       </Typography>
                       {activity.price_discount > 0 && (
                         <Typography variant='caption' className='line-through opacity-40 italic'>

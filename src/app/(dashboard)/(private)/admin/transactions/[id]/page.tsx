@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -14,9 +14,7 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import TextField from '@mui/material/TextField'
 import LoadingButton from '@mui/lab/LoadingButton'
-import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -30,7 +28,7 @@ import type { Transaction } from '@/types/project-types'
 // Utils Imports
 import { formatRupiah, parseApiData } from '@/utils/apiUtils'
 
-const TransactionDetailsPage = () => {
+const AdminTransactionDetailPage = () => {
   // Params
   const { id } = useParams()
   const router = useRouter()
@@ -38,11 +36,6 @@ const TransactionDetailsPage = () => {
   // States
   const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [loading, setLoading] = useState(true)
-  const [cancelling, setCancelling] = useState(false)
-  const [updatingProof, setUpdatingProof] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [proofUrl, setProofUrl] = useState('')
-  const [role, setRole] = useState('user')
   const [updatingStatus, setUpdatingStatus] = useState(false)
 
   const handleUpdateStatus = async (status: 'success' | 'failed') => {
@@ -76,10 +69,9 @@ const TransactionDetailsPage = () => {
       if (res.ok) {
         const data = parseApiData<Transaction>(json)
         setTransaction(data)
-        setProofUrl(data.proofPaymentUrl || '')
       } else {
         toast.error('Transaction not found')
-        router.push('/transactions')
+        router.push('/admin/transactions')
       }
     } catch (error) {
       console.error('Failed to fetch transaction:', error)
@@ -90,96 +82,8 @@ const TransactionDetailsPage = () => {
   }
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('/api/proxy/user')
-        const json = await res.json()
-        if (res.ok) {
-          setRole(json.data?.role || 'user')
-        }
-      } catch (e) {}
-    }
-    fetchUser()
     fetchTransaction()
   }, [id])
-
-  const handleCancel = async () => {
-    if (!id) return
-    setCancelling(true)
-    try {
-      const res = await fetch(`/api/proxy/cancel-transaction/${id}`, { method: 'POST' })
-      const json = await res.json()
-      if (res.ok) {
-        toast.success(json.message || 'Transaction cancelled')
-        fetchTransaction()
-      } else {
-        toast.error(json.message || 'Failed to cancel transaction')
-      }
-    } catch (error) {
-      toast.error('An error occurred during cancellation')
-    } finally {
-      setCancelling(false)
-    }
-  }
-
-  const handleUpload = async (file: File) => {
-    setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append('image', file)
-      const res = await fetch('/api/proxy/upload-image', {
-        method: 'POST',
-        body: formData
-      })
-      const json = await res.json()
-      
-      if (res.ok) {
-        const url = json.url || json.data?.url || (json.data && json.data.imageUrl)
-        if (url) {
-          setProofUrl(url)
-          toast.success('Image uploaded successfully!')
-          
-          // Automatically submit the proof to the transaction
-          await submitProof(url)
-        } else {
-          toast.error('Upload successful but no URL returned from server')
-        }
-      } else {
-        toast.error(json.message || 'Image upload failed')
-      }
-    } catch (error) {
-      toast.error('An error occurred during file upload')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const submitProof = async (url: string) => {
-    if (!id || !url) return
-    setUpdatingProof(true)
-    try {
-      const res = await fetch(`/api/proxy/update-transaction-proof-payment/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ proofPaymentUrl: url })
-      })
-      const json = await res.json()
-      if (res.ok) {
-        toast.success('Payment proof submitted successfully!')
-        fetchTransaction()
-      } else {
-        toast.error(json.message || 'Failed to submit payment proof')
-      }
-    } catch (error) {
-      toast.error('An error occurred while submitting the proof')
-    } finally {
-      setUpdatingProof(false)
-    }
-  }
-
-  const handleUpdateProof = async () => {
-    submitProof(proofUrl)
-  }
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -207,19 +111,19 @@ const TransactionDetailsPage = () => {
       <div className='flex justify-between items-center flex-wrap gap-4'>
         <div>
           <Typography variant='h3' fontWeight='bold' className='mb-1'>
-            Booking Detail {transaction.invoiceId || `#${id.slice(0, 8)}`}
+            Manage Booking {transaction.invoiceId || `#${id.slice(0, 8)}`}
           </Typography>
           <Typography color='text.secondary'>
-            Created on {transaction.createdAt ? new Date(transaction.createdAt).toLocaleString() : 'N/A'}
+            Admin control for booking made on {transaction.createdAt ? new Date(transaction.createdAt).toLocaleString() : 'N/A'}
           </Typography>
         </div>
         <Button
           variant='outlined' 
           startIcon={<i className='ri-arrow-left-line' />}
           component={Link}
-          href='/transactions'
+          href='/admin/transactions'
         >
-          Back to List
+          Back to Admin List
         </Button>
       </div>
 
@@ -258,91 +162,71 @@ const TransactionDetailsPage = () => {
             </Card>
 
             <Card>
-              <CardHeader title='Payment Confirmation' className='bg-actionHover p-4' />
+              <CardHeader title='Approval Action' className='bg-actionHover p-4' />
               <CardContent className='p-6 flex flex-col gap-6'>
                 {transaction.status === 'pending' ? (
                   <>
-                    {transaction.proofPaymentUrl ? (
-                      <Alert 
-                        severity='info' 
-                        icon={<i className='ri-time-line' />}
-                        action={
-                          <Button color='inherit' size='small' onClick={() => setProofUrl('')}>
-                            Re-upload
-                          </Button>
-                        }
-                      >
-                        <Typography fontWeight='bold'>Payment proof received!</Typography>
-                        Your payment is currently being verified by our team.
-                      </Alert>
-                    ) : (
-                      <>
-                        <Alert severity='info' icon={<i className='ri-information-line' />}>
-                          Please upload your payment receipt to complete your booking.
-                        </Alert>
-                        
-                        <Box display='flex' flexDirection='column' gap={4}>
-                          <Box border='1px dashed' borderColor='divider' borderRadius={2} p={6} textAlign='center'>
-                            <input
-                              type='file'
-                              id='payment-file'
-                              style={{ display: 'none' }}
-                              accept='image/*'
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) handleUpload(file)
-                              }}
-                            />
-                            <label htmlFor='payment-file'>
-                              <LoadingButton
-                                component='span'
-                                loading={uploading}
-                                variant='outlined'
-                                startIcon={<i className='ri-upload-2-line' />}
-                                className='mb-2'
-                              >
-                                Upload Receipt
-                              </LoadingButton>
-                            </label>
-                            <Typography variant='caption' display='block' color='text.secondary'>
-                              PNG, JPG or JPEG up to 5MB
-                            </Typography>
+                    <Alert 
+                      severity='info' 
+                      icon={<i className='ri-shield-user-line' />}
+                    >
+                      <Typography fontWeight='bold'>Pending Verification</Typography>
+                      Review the payment proof below and decide whether to approve or reject this transaction.
+                    </Alert>
+                    
+                    <Box display='flex' flexDirection='column' gap={6} alignItems='center'>
+                      {transaction.proofPaymentUrl ? (
+                        <Box border='1px solid' borderColor='divider' borderRadius={2} overflow='hidden' maxWidth={500} width='100%'>
+                          <img src={transaction.proofPaymentUrl} alt='Payment Proof' style={{ width: '100%', height: 'auto' }} />
+                          <Box p={3} textAlign='center' className='bg-actionHover'>
+                            <Button variant='contained' size='small' component='a' href={transaction.proofPaymentUrl} target='_blank' startIcon={<i className='ri-external-link-line' />}>
+                              View Full Size Receipt
+                            </Button>
                           </Box>
-
-                          <TextField
-                            fullWidth
-                            label='Proof of Payment URL'
-                            placeholder='https://...'
-                            value={proofUrl}
-                            onChange={(e) => setProofUrl(e.target.value)}
-                            variant='outlined'
-                          />
-
-                          <LoadingButton
-                            fullWidth
-                            variant='contained'
-                            onClick={handleUpdateProof}
-                            loading={updatingProof} 
-                            disabled={!proofUrl}
-                            size='large'
-                          >
-                            Submit Payment Proof
-                          </LoadingButton>
                         </Box>
-                      </>
-                    )}
+                      ) : (
+                        <Alert severity='warning' className='w-full'>
+                          The user has not uploaded any payment proof yet.
+                        </Alert>
+                      )}
+
+                      <Box display='flex' gap={4} width='100%'>
+                        <LoadingButton
+                          fullWidth
+                          variant='contained'
+                          color='success'
+                          onClick={() => handleUpdateStatus('success')}
+                          loading={updatingStatus}
+                          startIcon={<i className='ri-checkbox-circle-line' />}
+                          size='large'
+                          sx={{ height: 56 }}
+                        >
+                          Approve Transaction
+                        </LoadingButton>
+                        <LoadingButton
+                          fullWidth
+                          variant='contained'
+                          color='error'
+                          onClick={() => handleUpdateStatus('failed')}
+                          loading={updatingStatus}
+                          startIcon={<i className='ri-close-circle-line' />}
+                          size='large'
+                          sx={{ height: 56 }}
+                        >
+                          Reject Transaction
+                        </LoadingButton>
+                      </Box>
+                    </Box>
                   </>
                 ) : (
                   <Box display='flex' flexDirection='column' gap={4} alignItems='center' textAlign='center' py={6}>
                     <i className={transaction.status === 'success' ? 'ri-checkbox-circle-line text-success text-[80px]' : 'ri-close-circle-line text-error text-[80px]'} />
                     <div>
                       <Typography variant='h5' fontWeight='bold' gutterBottom>
-                        Transaction {transaction.status === 'success' ? 'Verified!' : 'Cancelled'}
+                        Transaction {transaction.status === 'success' ? 'Already Approved' : 'Rejected/Cancelled'}
                       </Typography>
                       <Typography color='text.secondary'>
-                        {transaction.status === 'success' 
-                          ? 'Your booking is confirmed! Pack your bags for the adventure.'
-                          : 'This transaction is no longer active.'}
+                        Current status: <Chip label={transaction.status.toUpperCase()} color={getStatusColor(transaction.status)} size='small' variant='tonal' className='font-bold' />
                       </Typography>
                     </div>
                     {transaction.proofPaymentUrl && (
@@ -360,11 +244,11 @@ const TransactionDetailsPage = () => {
         <Grid item xs={12} lg={4}>
           <div className='flex flex-col gap-6 sticky top-8'>
             <Card>
-              <CardHeader title='Order Details' className='bg-actionHover p-4' />
+              <CardHeader title='Order Overview' className='bg-actionHover p-4' />
               <CardContent className='flex flex-col gap-4 p-6'>
                 <Box sx={{ pt: 4 }} />
                 <Box display='flex' justifyContent='space-between' alignItems='center'>
-                  <Typography color='text.secondary'>Status</Typography>
+                  <Typography color='text.secondary'>Current Status</Typography>
                   <Chip
                     label={transaction.status.toUpperCase()}
                     color={getStatusColor(transaction.status)}
@@ -377,36 +261,29 @@ const TransactionDetailsPage = () => {
                 </Box>
                 <Divider />
                 <Box display='flex' justifyContent='space-between' alignItems='center' py={2}>
-                  <Typography variant='h6' fontWeight='bold'>Total Paid</Typography>
+                  <Typography variant='h6' fontWeight='bold'>Total Amount</Typography>
                   <Typography variant='h4' fontWeight='900' color='primary'>
                     {formatRupiah(transaction.totalAmount || 0)}
                   </Typography>
                 </Box>
-                
-                {transaction.status === 'pending' && (
-                  <LoadingButton
-                    fullWidth
-                    color='error'
-                    variant='outlined'
-                    onClick={handleCancel}
-                    loading={cancelling}
-                    startIcon={<i className='ri-close-line' />}
-                  >
-                    Cancel Transaction
-                  </LoadingButton>
-                )}
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader title='Need Help?' className='bg-actionHover p-4' />
+              <CardHeader title='Customer Info' className='bg-actionHover p-4' />
               <CardContent className='p-6'>
-                <Typography variant='body2' className='mb-4'>
-                  If you have issues with your payment or booking details, our support team is available 24/7.
-                </Typography>
-                <Button fullWidth startIcon={<i className='ri-customer-service-2-line' />} variant='outlined'>
-                  Contact Support
-                </Button>
+                 <Typography variant='body2' color='textSecondary' gutterBottom>
+                   Booking ID:
+                 </Typography>
+                 <Typography fontWeight='bold' className='mb-4'>
+                   {transaction.id}
+                 </Typography>
+                 <Typography variant='body2' color='textSecondary' gutterBottom>
+                   Invoice Number:
+                 </Typography>
+                 <Typography fontWeight='bold'>
+                   {transaction.invoiceId || 'N/A'}
+                 </Typography>
               </CardContent>
             </Card>
           </div>
@@ -416,4 +293,4 @@ const TransactionDetailsPage = () => {
   )
 }
 
-export default TransactionDetailsPage
+export default AdminTransactionDetailPage

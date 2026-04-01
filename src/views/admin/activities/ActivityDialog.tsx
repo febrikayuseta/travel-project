@@ -52,7 +52,14 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
         const res = await fetch('/api/proxy/categories')
         const json = await res.json()
         if (res.ok) {
-          setCategories(parseApiData<Category[]>(json))
+          const fetched = parseApiData<Category[]>(json)
+          
+          // Filter out empty names and sort alphabetically
+          const processed = fetched
+            .filter(cat => cat.name && cat.name.trim().length > 0)
+            .sort((a, b) => a.name.localeCompare(b.name))
+
+          setCategories(processed)
         }
       } catch (error) {
         console.error('Failed to fetch categories:', error)
@@ -67,7 +74,7 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
         title: data.title || '',
         categoryId: data.categoryId || '',
         description: data.description || '',
-        imageUrls: data.imageUrls || [],
+        imageUrls: (data.imageUrls || []).filter(url => url && url.trim().length > 0),
         price: data.price || 0,
         price_discount: data.price_discount || 0,
         rating: data.rating || 0,
@@ -104,6 +111,12 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (formData.price_discount > formData.price) {
+      toast.error('Discounted price cannot be greater than regular price')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -205,6 +218,8 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
                 label='Discounted Price (IDR)'
                 value={formData.price_discount}
                 onChange={e => setFormData({ ...formData, price_discount: Number(e.target.value) })}
+                error={formData.price_discount > formData.price}
+                helperText={formData.price_discount > formData.price ? 'Cannot be greater than regular price' : ''}
               />
             </Grid>
 
@@ -224,13 +239,14 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
                 onChange={e => setFormData({ ...formData, city: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
-                label='Maps URL'
-                placeholder='Google Maps link'
+                label='Maps Link or Embed Code'
+                placeholder='Paste Google Maps share link or iframe embed code here'
                 value={formData.location_maps}
                 onChange={e => setFormData({ ...formData, location_maps: e.target.value })}
+                helperText='You can paste just the URL from Google Maps, or the full <iframe> embed tag. The system will handle both.'
               />
             </Grid>
 
@@ -273,7 +289,7 @@ const ActivityDialog = ({ open, setOpen, data, onSuccess }: ActivityDialogProps)
                 />
               </div>
               <div className='flex gap-4 flex-wrap'>
-                {formData.imageUrls.map((url, idx) => (
+                {formData.imageUrls.filter(url => url && url.trim().length > 0).map((url, idx) => (
                   <div key={idx} className='relative w-24 h-24 rounded-lg overflow-hidden border border-divider'>
                     <img src={url} alt='Activity' className='w-full h-full object-cover' />
                     <IconButton 

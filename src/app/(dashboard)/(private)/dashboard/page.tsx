@@ -205,13 +205,13 @@ const DashboardAnalytics = async () => {
                   <div className='mt-auto flex items-center justify-between pt-4 border-t border-divider'>
                     <div>
                       <Typography variant='caption' color='textSecondary' className='block'>Starting from</Typography>
-                      {activity.price_discount && activity.price_discount < activity.price ? (
+                      {activity.price_discount > 0 ? (
                         <>
                           <Typography variant='caption' className='line-through text-textDisabled'>
                             {formatRupiah(activity.price)}
                           </Typography>
                           <Typography variant='h6' color='primary' fontWeight='900'>
-                            {formatRupiah(activity.price_discount)}
+                            {formatRupiah(activity.price - activity.price_discount)}
                           </Typography>
                         </>
                       ) : (
